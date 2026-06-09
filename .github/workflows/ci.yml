@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build (${{ matrix.name }})
+    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            destination: generic/platform=macOS
+          - name: iOS
+            destination: generic/platform=iOS Simulator
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      # Mirrors Scripts/build-app.sh: regenerate the app and document icons
+      # into the asset catalog before building, so CI also verifies the
+      # generator that the release script depends on.
+      - name: Generate icons
+        if: matrix.name == 'macOS'
+        run: swift Scripts/GenerateBlueprintIcons.swift
+
+      - name: Build
+        run: |
+          xcodebuild build \
+            -project DeXeF.xcodeproj \
+            -scheme DeXeF \
+            -configuration Release \
+            -destination '${{ matrix.destination }}' \
+            CODE_SIGNING_ALLOWED=NO

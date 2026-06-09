@@ -1,0 +1,1001 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		100000000000000000000101 /* DeXeFApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000001 /* DeXeFApp.swift */; };
+		100000000000000000000102 /* DXFDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000002 /* DXFDocument.swift */; };
+		100000000000000000000103 /* DXFModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000003 /* DXFModel.swift */; };
+		100000000000000000000104 /* DXFParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000004 /* DXFParser.swift */; };
+		100000000000000000000105 /* GeometryBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000005 /* GeometryBuilder.swift */; };
+		100000000000000000000106 /* MetalCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000006 /* MetalCanvas.swift */; };
+		100000000000000000000107 /* MetalRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000007 /* MetalRenderer.swift */; };
+		100000000000000000000108 /* DXFRenderStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000008 /* DXFRenderStyle.swift */; };
+		100000000000000000000109 /* LayerSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000009 /* LayerSidebar.swift */; };
+		10000000000000000000010A /* ViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000000A /* ViewerView.swift */; };
+		10000000000000000000010B /* ViewportController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000000B /* ViewportController.swift */; };
+		10000000000000000000010C /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000000E /* PreferencesView.swift */; };
+		10000000000000000000010D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000000F /* Assets.xcassets */; };
+		10000000000000000000010E /* DXFDocumentIcon-64.png in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A0 /* DXFDocumentIcon-64.png */; };
+		10000000000000000000010F /* DXFDocumentIcon-320.png in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A1 /* DXFDocumentIcon-320.png */; };
+		100000000000000000000110 /* Fonts/NationalPark/NationalPark-wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A2 /* Fonts/NationalPark/NationalPark-wght.ttf */; };
+		100000000000000000000111 /* Fonts/NationalPark/OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A3 /* Fonts/NationalPark/OFL.txt */; };
+		100000000000000000000112 /* DemoEntities.dxf in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A4 /* DemoEntities.dxf */; };
+		100000000000000000000113 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 300000000000000000000001 /* LICENSE */; };
+		210000000000000000000001 /* DeXeFQuickLookPreview.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2000000000000000000000E1 /* DeXeFQuickLookPreview.appex */; platformFilters = (macos, ); settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		210000000000000000000002 /* DeXeFThumbnail.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2000000000000000000000E2 /* DeXeFThumbnail.appex */; platformFilters = (macos, ); settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		210000000000000000000101 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000003 /* PreviewViewController.swift */; };
+		210000000000000000000102 /* DXFPreviewDrawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000001 /* DXFPreviewDrawing.swift */; };
+		210000000000000000000103 /* DXFModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000003 /* DXFModel.swift */; };
+		210000000000000000000104 /* DXFParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000004 /* DXFParser.swift */; };
+		210000000000000000000105 /* GeometryBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000005 /* GeometryBuilder.swift */; };
+		210000000000000000000106 /* MetalRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000007 /* MetalRenderer.swift */; };
+		210000000000000000000107 /* ViewportController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000000B /* ViewportController.swift */; };
+		210000000000000000000108 /* DXFRenderStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000008 /* DXFRenderStyle.swift */; };
+		210000000000000000000109 /* Fonts/NationalPark/NationalPark-wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A2 /* Fonts/NationalPark/NationalPark-wght.ttf */; };
+		21000000000000000000010A /* Fonts/NationalPark/OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A3 /* Fonts/NationalPark/OFL.txt */; };
+		21000000000000000000010B /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 300000000000000000000001 /* LICENSE */; };
+		210000000000000000000201 /* ThumbnailProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000005 /* ThumbnailProvider.swift */; };
+		210000000000000000000202 /* DXFPreviewDrawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000001 /* DXFPreviewDrawing.swift */; };
+		210000000000000000000203 /* DXFModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000003 /* DXFModel.swift */; };
+		210000000000000000000204 /* DXFParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000004 /* DXFParser.swift */; };
+		210000000000000000000205 /* GeometryBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000005 /* GeometryBuilder.swift */; };
+		210000000000000000000206 /* DXFRenderStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000008 /* DXFRenderStyle.swift */; };
+		210000000000000000000207 /* Fonts/NationalPark/NationalPark-wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A2 /* Fonts/NationalPark/NationalPark-wght.ttf */; };
+		210000000000000000000208 /* Fonts/NationalPark/OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A3 /* Fonts/NationalPark/OFL.txt */; };
+		210000000000000000000209 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 300000000000000000000001 /* LICENSE */; };
+		310000000000000000000001 /* DeXeFThumbnailiOS.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 3100000000000000000000E2 /* DeXeFThumbnailiOS.appex */; platformFilters = (ios, ); settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		310000000000000000000201 /* ThumbnailProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000005 /* ThumbnailProvider.swift */; };
+		310000000000000000000202 /* DXFPreviewDrawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000001 /* DXFPreviewDrawing.swift */; };
+		310000000000000000000203 /* DXFModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000003 /* DXFModel.swift */; };
+		310000000000000000000204 /* DXFParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000004 /* DXFParser.swift */; };
+		310000000000000000000205 /* GeometryBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000005 /* GeometryBuilder.swift */; };
+		310000000000000000000206 /* DXFRenderStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000008 /* DXFRenderStyle.swift */; };
+		310000000000000000000207 /* Fonts/NationalPark/NationalPark-wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A2 /* Fonts/NationalPark/NationalPark-wght.ttf */; };
+		310000000000000000000208 /* Fonts/NationalPark/OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A3 /* Fonts/NationalPark/OFL.txt */; };
+		310000000000000000000209 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 300000000000000000000001 /* LICENSE */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2000000000000000000000A1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 100000000000000000000000 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 200000000000000000000030;
+			remoteInfo = DeXeFQuickLookPreview;
+		};
+		2000000000000000000000A2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 100000000000000000000000 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 200000000000000000000040;
+			remoteInfo = DeXeFThumbnail;
+		};
+		3100000000000000000000A1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 100000000000000000000000 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 310000000000000000000040;
+			remoteInfo = DeXeFThumbnailiOS;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		200000000000000000000090 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				210000000000000000000001 /* DeXeFQuickLookPreview.appex in Embed Foundation Extensions */,
+				210000000000000000000002 /* DeXeFThumbnail.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		310000000000000000000090 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				310000000000000000000001 /* DeXeFThumbnailiOS.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		100000000000000000000001 /* DeXeFApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeXeFApp.swift; sourceTree = "<group>"; };
+		100000000000000000000002 /* DXFDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DXFDocument.swift; sourceTree = "<group>"; };
+		100000000000000000000003 /* DXFModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DXFModel.swift; sourceTree = "<group>"; };
+		100000000000000000000004 /* DXFParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DXFParser.swift; sourceTree = "<group>"; };
+		100000000000000000000005 /* GeometryBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryBuilder.swift; sourceTree = "<group>"; };
+		100000000000000000000006 /* MetalCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalCanvas.swift; sourceTree = "<group>"; };
+		100000000000000000000007 /* MetalRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalRenderer.swift; sourceTree = "<group>"; };
+		100000000000000000000008 /* DXFRenderStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DXFRenderStyle.swift; sourceTree = "<group>"; };
+		100000000000000000000009 /* LayerSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerSidebar.swift; sourceTree = "<group>"; };
+		10000000000000000000000A /* ViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewerView.swift; sourceTree = "<group>"; };
+		10000000000000000000000B /* ViewportController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewportController.swift; sourceTree = "<group>"; };
+		10000000000000000000000C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		10000000000000000000000D /* Info-iOS.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-iOS.plist"; sourceTree = "<group>"; };
+		10000000000000000000000E /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
+		10000000000000000000000F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1000000000000000000000A0 /* DXFDocumentIcon-64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "DXFDocumentIcon-64.png"; sourceTree = "<group>"; };
+		1000000000000000000000A1 /* DXFDocumentIcon-320.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "DXFDocumentIcon-320.png"; sourceTree = "<group>"; };
+		1000000000000000000000A2 /* Fonts/NationalPark/NationalPark-wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Fonts/NationalPark/NationalPark-wght.ttf"; sourceTree = "<group>"; };
+		1000000000000000000000A3 /* Fonts/NationalPark/OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Fonts/NationalPark/OFL.txt; sourceTree = "<group>"; };
+		1000000000000000000000A4 /* DemoEntities.dxf */ = {isa = PBXFileReference; lastKnownFileType = text; path = DemoEntities.dxf; sourceTree = "<group>"; };
+		1000000000000000000000E1 /* DeXeF.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DeXeF.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		200000000000000000000001 /* DXFPreviewDrawing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DXFPreviewDrawing.swift; sourceTree = "<group>"; };
+		200000000000000000000002 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		200000000000000000000003 /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
+		200000000000000000000004 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		200000000000000000000005 /* ThumbnailProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailProvider.swift; sourceTree = "<group>"; };
+		2000000000000000000000E1 /* DeXeFQuickLookPreview.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DeXeFQuickLookPreview.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2000000000000000000000E2 /* DeXeFThumbnail.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DeXeFThumbnail.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		300000000000000000000001 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		3100000000000000000000E2 /* DeXeFThumbnailiOS.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DeXeFThumbnailiOS.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		100000000000000000000032 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		200000000000000000000032 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		200000000000000000000042 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		310000000000000000000042 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		100000000000000000000010 = {
+			isa = PBXGroup;
+			children = (
+				300000000000000000000001 /* LICENSE */,
+				100000000000000000000011 /* DeXeF */,
+				100000000000000000000020 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		100000000000000000000011 /* DeXeF */ = {
+			isa = PBXGroup;
+			children = (
+				10000000000000000000000C /* Info.plist */,
+				10000000000000000000000D /* Info-iOS.plist */,
+				10000000000000000000000F /* Assets.xcassets */,
+				100000000000000000000012 /* App */,
+				100000000000000000000013 /* Document */,
+				100000000000000000000014 /* DXF */,
+				100000000000000000000015 /* Rendering */,
+				100000000000000000000017 /* Resources */,
+				100000000000000000000016 /* UI */,
+				200000000000000000000011 /* QuickLookPreview */,
+				200000000000000000000012 /* Thumbnail */,
+			);
+			path = DeXeF;
+			sourceTree = "<group>";
+		};
+		100000000000000000000012 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000001 /* DeXeFApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		100000000000000000000013 /* Document */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000002 /* DXFDocument.swift */,
+			);
+			path = Document;
+			sourceTree = "<group>";
+		};
+		100000000000000000000014 /* DXF */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000003 /* DXFModel.swift */,
+				100000000000000000000004 /* DXFParser.swift */,
+			);
+			path = DXF;
+			sourceTree = "<group>";
+		};
+		100000000000000000000015 /* Rendering */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000005 /* GeometryBuilder.swift */,
+				100000000000000000000008 /* DXFRenderStyle.swift */,
+				200000000000000000000001 /* DXFPreviewDrawing.swift */,
+				100000000000000000000006 /* MetalCanvas.swift */,
+				100000000000000000000007 /* MetalRenderer.swift */,
+			);
+			path = Rendering;
+			sourceTree = "<group>";
+		};
+		100000000000000000000016 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000009 /* LayerSidebar.swift */,
+				10000000000000000000000E /* PreferencesView.swift */,
+				10000000000000000000000A /* ViewerView.swift */,
+				10000000000000000000000B /* ViewportController.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		100000000000000000000017 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				1000000000000000000000A0 /* DXFDocumentIcon-64.png */,
+				1000000000000000000000A1 /* DXFDocumentIcon-320.png */,
+				1000000000000000000000A4 /* DemoEntities.dxf */,
+				1000000000000000000000A2 /* Fonts/NationalPark/NationalPark-wght.ttf */,
+				1000000000000000000000A3 /* Fonts/NationalPark/OFL.txt */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		100000000000000000000020 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1000000000000000000000E1 /* DeXeF.app */,
+				2000000000000000000000E1 /* DeXeFQuickLookPreview.appex */,
+				2000000000000000000000E2 /* DeXeFThumbnail.appex */,
+				3100000000000000000000E2 /* DeXeFThumbnailiOS.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		200000000000000000000011 /* QuickLookPreview */ = {
+			isa = PBXGroup;
+			children = (
+				200000000000000000000002 /* Info.plist */,
+				200000000000000000000003 /* PreviewViewController.swift */,
+			);
+			path = QuickLookPreview;
+			sourceTree = "<group>";
+		};
+		200000000000000000000012 /* Thumbnail */ = {
+			isa = PBXGroup;
+			children = (
+				200000000000000000000004 /* Info.plist */,
+				200000000000000000000005 /* ThumbnailProvider.swift */,
+			);
+			path = Thumbnail;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		100000000000000000000030 /* DeXeF */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 100000000000000000000050 /* Build configuration list for PBXNativeTarget "DeXeF" */;
+			buildPhases = (
+				100000000000000000000031 /* Sources */,
+				100000000000000000000032 /* Frameworks */,
+				100000000000000000000033 /* Resources */,
+				200000000000000000000090 /* Embed Foundation Extensions */,
+				310000000000000000000090 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2000000000000000000000B1 /* PBXTargetDependency */,
+				2000000000000000000000B2 /* PBXTargetDependency */,
+				3100000000000000000000B1 /* PBXTargetDependency */,
+			);
+			name = DeXeF;
+			productName = DeXeF;
+			productReference = 1000000000000000000000E1 /* DeXeF.app */;
+			productType = "com.apple.product-type.application";
+		};
+		200000000000000000000030 /* DeXeFQuickLookPreview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 200000000000000000000050 /* Build configuration list for PBXNativeTarget "DeXeFQuickLookPreview" */;
+			buildPhases = (
+				200000000000000000000031 /* Sources */,
+				200000000000000000000032 /* Frameworks */,
+				200000000000000000000033 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DeXeFQuickLookPreview;
+			productName = DeXeFQuickLookPreview;
+			productReference = 2000000000000000000000E1 /* DeXeFQuickLookPreview.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		200000000000000000000040 /* DeXeFThumbnail */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 200000000000000000000060 /* Build configuration list for PBXNativeTarget "DeXeFThumbnail" */;
+			buildPhases = (
+				200000000000000000000041 /* Sources */,
+				200000000000000000000042 /* Frameworks */,
+				200000000000000000000043 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DeXeFThumbnail;
+			productName = DeXeFThumbnail;
+			productReference = 2000000000000000000000E2 /* DeXeFThumbnail.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		310000000000000000000040 /* DeXeFThumbnailiOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 310000000000000000000060 /* Build configuration list for PBXNativeTarget "DeXeFThumbnailiOS" */;
+			buildPhases = (
+				310000000000000000000041 /* Sources */,
+				310000000000000000000042 /* Frameworks */,
+				310000000000000000000043 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DeXeFThumbnailiOS;
+			productName = DeXeFThumbnailiOS;
+			productReference = 3100000000000000000000E2 /* DeXeFThumbnailiOS.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		100000000000000000000000 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2640;
+				TargetAttributes = {
+					100000000000000000000030 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					200000000000000000000030 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					200000000000000000000040 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+					310000000000000000000040 = {
+						CreatedOnToolsVersion = 26.0;
+					};
+				};
+			};
+			buildConfigurationList = 100000000000000000000070 /* Build configuration list for PBXProject "DeXeF" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 100000000000000000000010;
+			productRefGroup = 100000000000000000000020 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				100000000000000000000030 /* DeXeF */,
+				200000000000000000000030 /* DeXeFQuickLookPreview */,
+				200000000000000000000040 /* DeXeFThumbnail */,
+				310000000000000000000040 /* DeXeFThumbnailiOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		100000000000000000000033 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				10000000000000000000010D /* Assets.xcassets in Resources */,
+				10000000000000000000010E /* DXFDocumentIcon-64.png in Resources */,
+				10000000000000000000010F /* DXFDocumentIcon-320.png in Resources */,
+				100000000000000000000110 /* Fonts/NationalPark/NationalPark-wght.ttf in Resources */,
+				100000000000000000000111 /* Fonts/NationalPark/OFL.txt in Resources */,
+				100000000000000000000112 /* DemoEntities.dxf in Resources */,
+				100000000000000000000113 /* LICENSE in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		200000000000000000000033 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				210000000000000000000109 /* Fonts/NationalPark/NationalPark-wght.ttf in Resources */,
+				21000000000000000000010A /* Fonts/NationalPark/OFL.txt in Resources */,
+				21000000000000000000010B /* LICENSE in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		200000000000000000000043 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				210000000000000000000207 /* Fonts/NationalPark/NationalPark-wght.ttf in Resources */,
+				210000000000000000000208 /* Fonts/NationalPark/OFL.txt in Resources */,
+				210000000000000000000209 /* LICENSE in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		310000000000000000000043 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				310000000000000000000207 /* Fonts/NationalPark/NationalPark-wght.ttf in Resources */,
+				310000000000000000000208 /* Fonts/NationalPark/OFL.txt in Resources */,
+				310000000000000000000209 /* LICENSE in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		100000000000000000000031 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				100000000000000000000101 /* DeXeFApp.swift in Sources */,
+				100000000000000000000102 /* DXFDocument.swift in Sources */,
+				100000000000000000000103 /* DXFModel.swift in Sources */,
+				100000000000000000000104 /* DXFParser.swift in Sources */,
+				100000000000000000000105 /* GeometryBuilder.swift in Sources */,
+				100000000000000000000106 /* MetalCanvas.swift in Sources */,
+				100000000000000000000107 /* MetalRenderer.swift in Sources */,
+				100000000000000000000108 /* DXFRenderStyle.swift in Sources */,
+				100000000000000000000109 /* LayerSidebar.swift in Sources */,
+				10000000000000000000010A /* ViewerView.swift in Sources */,
+				10000000000000000000010B /* ViewportController.swift in Sources */,
+				10000000000000000000010C /* PreferencesView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		200000000000000000000031 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				210000000000000000000101 /* PreviewViewController.swift in Sources */,
+				210000000000000000000102 /* DXFPreviewDrawing.swift in Sources */,
+				210000000000000000000103 /* DXFModel.swift in Sources */,
+				210000000000000000000104 /* DXFParser.swift in Sources */,
+				210000000000000000000105 /* GeometryBuilder.swift in Sources */,
+				210000000000000000000106 /* MetalRenderer.swift in Sources */,
+				210000000000000000000107 /* ViewportController.swift in Sources */,
+				210000000000000000000108 /* DXFRenderStyle.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		200000000000000000000041 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				210000000000000000000201 /* ThumbnailProvider.swift in Sources */,
+				210000000000000000000202 /* DXFPreviewDrawing.swift in Sources */,
+				210000000000000000000203 /* DXFModel.swift in Sources */,
+				210000000000000000000204 /* DXFParser.swift in Sources */,
+				210000000000000000000205 /* GeometryBuilder.swift in Sources */,
+				210000000000000000000206 /* DXFRenderStyle.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		310000000000000000000041 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				310000000000000000000201 /* ThumbnailProvider.swift in Sources */,
+				310000000000000000000202 /* DXFPreviewDrawing.swift in Sources */,
+				310000000000000000000203 /* DXFModel.swift in Sources */,
+				310000000000000000000204 /* DXFParser.swift in Sources */,
+				310000000000000000000205 /* GeometryBuilder.swift in Sources */,
+				310000000000000000000206 /* DXFRenderStyle.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2000000000000000000000B1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilters = (macos, );
+			target = 200000000000000000000030 /* DeXeFQuickLookPreview */;
+			targetProxy = 2000000000000000000000A1 /* PBXContainerItemProxy */;
+		};
+		2000000000000000000000B2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilters = (macos, );
+			target = 200000000000000000000040 /* DeXeFThumbnail */;
+			targetProxy = 2000000000000000000000A2 /* PBXContainerItemProxy */;
+		};
+		3100000000000000000000B1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilters = (ios, );
+			target = 310000000000000000000040 /* DeXeFThumbnailiOS */;
+			targetProxy = 3100000000000000000000A1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		100000000000000000000051 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DeXeF/Info.plist;
+				"INFOPLIST_FILE[sdk=iphoneos*]" = "DeXeF/Info-iOS.plist";
+				"INFOPLIST_FILE[sdk=iphonesimulator*]" = "DeXeF/Info-iOS.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = DeXeF;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.dexef;
+				PRODUCT_NAME = DeXeF;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		100000000000000000000052 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DeXeF/Info.plist;
+				"INFOPLIST_FILE[sdk=iphoneos*]" = "DeXeF/Info-iOS.plist";
+				"INFOPLIST_FILE[sdk=iphonesimulator*]" = "DeXeF/Info-iOS.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = DeXeF;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphoneos*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.dexef;
+				PRODUCT_NAME = DeXeF;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		100000000000000000000071 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 6MFC6VKTVX;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		100000000000000000000072 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DEVELOPMENT_TEAM = 6MFC6VKTVX;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_SERIALIZE_DEBUGGING_OPTIONS = NO;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		200000000000000000000051 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DeXeF/QuickLookPreview/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.twarge.dexef.quicklook-preview";
+				PRODUCT_NAME = DeXeFQuickLookPreview;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		200000000000000000000052 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DeXeF/QuickLookPreview/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.twarge.dexef.quicklook-preview";
+				PRODUCT_NAME = DeXeFQuickLookPreview;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		200000000000000000000061 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DeXeF/Thumbnail/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.dexef.thumbnail;
+				PRODUCT_NAME = DeXeFThumbnail;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		200000000000000000000062 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DeXeF/Thumbnail/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.dexef.thumbnail;
+				PRODUCT_NAME = DeXeFThumbnail;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		310000000000000000000061 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 6MFC6VKTVX;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DeXeF/Thumbnail/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.dexef.thumbnail.ios;
+				PRODUCT_NAME = DeXeFThumbnailiOS;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		310000000000000000000062 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGNING_ALLOWED = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 6MFC6VKTVX;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DeXeF/Thumbnail/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.dexef.thumbnail.ios;
+				PRODUCT_NAME = DeXeFThumbnailiOS;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		100000000000000000000050 /* Build configuration list for PBXNativeTarget "DeXeF" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				100000000000000000000051 /* Debug */,
+				100000000000000000000052 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		100000000000000000000070 /* Build configuration list for PBXProject "DeXeF" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				100000000000000000000071 /* Debug */,
+				100000000000000000000072 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		200000000000000000000050 /* Build configuration list for PBXNativeTarget "DeXeFQuickLookPreview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				200000000000000000000051 /* Debug */,
+				200000000000000000000052 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		200000000000000000000060 /* Build configuration list for PBXNativeTarget "DeXeFThumbnail" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				200000000000000000000061 /* Debug */,
+				200000000000000000000062 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		310000000000000000000060 /* Build configuration list for PBXNativeTarget "DeXeFThumbnailiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				310000000000000000000061 /* Debug */,
+				310000000000000000000062 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 100000000000000000000000 /* Project object */;
+}
