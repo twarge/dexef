@@ -45,7 +45,7 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-					<string>public.text</string>
+				<string>public.text</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>Drawing Exchange Format</string>
@@ -67,7 +67,7 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-					<string>public.text</string>
+				<string>public.text</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>Drawing Exchange Format</string>

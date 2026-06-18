@@ -4,6 +4,8 @@
 import AppKit
 import CoreGraphics
 import Foundation
+import ImageIO
+import UniformTypeIdentifiers
 
 enum BlueprintIconGenerator {
     static let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
@@ -52,6 +54,7 @@ enum BlueprintIconGenerator {
 
     private static func drawIcon(pixels: Int, destination: URL, style: IconStyle) throws {
         let size = CGSize(width: pixels, height: pixels)
+        let isAppIcon = style == .app
         guard let bitmap = NSBitmapImageRep(
             bitmapDataPlanes: nil,
             pixelsWide: pixels,
@@ -70,6 +73,9 @@ enum BlueprintIconGenerator {
         context.setAllowsAntialiasing(true)
         context.setShouldAntialias(true)
         context.clear(CGRect(origin: .zero, size: size))
+        if isAppIcon {
+            drawBlueprintBackground(in: CGRect(origin: .zero, size: size), context: context, colorA: color(0x071625), colorB: color(0x12385A))
+        }
 
         switch style {
         case .app:
@@ -78,11 +84,52 @@ enum BlueprintIconGenerator {
             drawDocumentIcon(in: CGRect(origin: .zero, size: size), context: context)
         }
 
-        guard let data = bitmap.representation(using: .png, properties: [:]) else {
-            throw IconError.couldNotEncode
+        let data: Data
+        if isAppIcon, let cgImage = bitmap.cgImage {
+            data = try opaquePNGData(from: cgImage, pixels: pixels)
+        } else {
+            guard let pngData = bitmap.representation(using: .png, properties: [:]) else {
+                throw IconError.couldNotEncode
+            }
+            data = pngData
         }
 
         try data.write(to: destination)
+    }
+
+    private static func opaquePNGData(from image: CGImage, pixels: Int) throws -> Data {
+        let size = CGSize(width: pixels, height: pixels)
+        let rect = CGRect(origin: .zero, size: size)
+        guard let context = CGContext(
+            data: nil,
+            width: pixels,
+            height: pixels,
+            bitsPerComponent: 8,
+            bytesPerRow: pixels * 4,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+        ) else {
+            throw IconError.missingContext
+        }
+
+        drawBlueprintBackground(in: rect, context: context, colorA: color(0x071625), colorB: color(0x12385A))
+        context.draw(image, in: rect)
+
+        guard let flattened = context.makeImage() else {
+            throw IconError.couldNotEncode
+        }
+
+        let data = NSMutableData()
+        guard let destination = CGImageDestinationCreateWithData(data, UTType.png.identifier as CFString, 1, nil) else {
+            throw IconError.couldNotEncode
+        }
+
+        CGImageDestinationAddImage(destination, flattened, nil)
+        guard CGImageDestinationFinalize(destination) else {
+            throw IconError.couldNotEncode
+        }
+
+        return data as Data
     }
 
     private static func drawAppIcon(in rect: CGRect, context: CGContext) {
