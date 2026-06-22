@@ -100,6 +100,7 @@ private struct AppInfoCommands: Commands {
     }
 }
 
+@MainActor
 private enum AboutPanel {
     static func show() {
         NSApplication.shared.orderFrontStandardAboutPanel(options: [

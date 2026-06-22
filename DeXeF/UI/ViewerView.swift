@@ -1173,7 +1173,7 @@ private struct ToolbarTopInsetReporter: NSViewRepresentable {
 private final class ToolbarTopInsetReportingView: NSView {
     var onChange: ((CGFloat) -> Void)?
     private var lastReportedTopInset: CGFloat = -1
-    private var resizeObserver: NSObjectProtocol?
+    nonisolated(unsafe) private var resizeObserver: NSObjectProtocol?
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
@@ -1188,7 +1188,10 @@ private final class ToolbarTopInsetReportingView: NSView {
                 object: window,
                 queue: .main
             ) { [weak self] _ in
-                self?.reportSoon()
+                // Delivered on the main queue, so it is safe to assume isolation.
+                MainActor.assumeIsolated {
+                    self?.reportSoon()
+                }
             }
         }
 

@@ -267,6 +267,7 @@ private struct CrosshairCursorModifier: ViewModifier {
 }
 #endif
 
+@MainActor
 final class Coordinator: NSObject {
     private var renderer: MetalRenderer?
     private weak var metalView: MTKView?

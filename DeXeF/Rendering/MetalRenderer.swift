@@ -5,6 +5,7 @@ import Foundation
 import MetalKit
 import simd
 
+@MainActor
 final class MetalRenderer: NSObject, MTKViewDelegate {
     private static let minimumPixelsPerUnit: Float = 0.000001
     private static let maxGridMarks = 40_000
