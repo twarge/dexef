@@ -556,7 +556,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 257KW9ZJFP;
 				"ENABLE_APP_SANDBOX[sdk=macosx*]" = YES;
@@ -583,7 +583,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.dexef;
 				PRODUCT_NAME = DeXeF;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -605,7 +605,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 257KW9ZJFP;
@@ -634,7 +634,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.dexef;
 				PRODUCT_NAME = DeXeF;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -776,7 +776,7 @@
 				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 257KW9ZJFP;
 				ENABLE_APP_SANDBOX = YES;
@@ -790,7 +790,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.twarge.app.dexef.quicklook-preview";
 				PRODUCT_NAME = DeXeFQuickLookPreview;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -809,7 +809,7 @@
 				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 257KW9ZJFP;
@@ -825,7 +825,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.twarge.app.dexef.quicklook-preview";
 				PRODUCT_NAME = DeXeFQuickLookPreview;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -844,7 +844,7 @@
 				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 257KW9ZJFP;
 				ENABLE_APP_SANDBOX = YES;
@@ -858,8 +858,9 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.dexef.thumbnail;
+				INFOPLIST_KEY_CFBundleDisplayName = "DeXeF Thumbnail";
 				PRODUCT_NAME = DeXeFThumbnail;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -877,7 +878,7 @@
 				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 257KW9ZJFP;
@@ -893,8 +894,9 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.dexef.thumbnail;
+				INFOPLIST_KEY_CFBundleDisplayName = "DeXeF Thumbnail";
 				PRODUCT_NAME = DeXeFThumbnail;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -912,7 +914,7 @@
 				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 257KW9ZJFP;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -924,7 +926,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.twarge.app.dexef.thumbnail-ios";
 				PRODUCT_NAME = DeXeFThumbnailiOS;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -944,7 +946,7 @@
 				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 257KW9ZJFP;
@@ -958,7 +960,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.twarge.app.dexef.thumbnail-ios";
 				PRODUCT_NAME = DeXeFThumbnailiOS;
 				PROVISIONING_PROFILE_SPECIFIER = "";
