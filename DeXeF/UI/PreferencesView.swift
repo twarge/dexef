@@ -18,6 +18,9 @@ struct PreferencesView: View {
 
     var body: some View {
         Form {
+            #if os(macOS)
+            // Hidden on iOS for now: the light/dark/system override isn't
+            // taking effect there yet, so the app follows the system appearance.
             Section("Appearance") {
                 Picker("Theme", selection: $themeRawValue) {
                     ForEach(AppTheme.allCases) { theme in
@@ -26,6 +29,7 @@ struct PreferencesView: View {
                 }
                 .pickerStyle(.segmented)
             }
+            #endif
 
             Section("Drawing") {
                 Picker("Coordinate Units", selection: $coordinateDisplayUnitRawValue) {
