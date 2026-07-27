@@ -11,6 +11,22 @@ final class ViewportController: ObservableObject {
     private(set) var zoom: Float = 1.0
     private(set) var pan = SIMD2<Float>(0, 0)
 
+    // True from the moment a second finger touches the canvas until every
+    // finger lifts. While set, the pinch handler owns the viewport and the
+    // SwiftUI drag gesture must not apply pan updates: when a second finger
+    // lands mid-drag, the drag's translation snaps to the two-finger centroid,
+    // and applying that leap against the single-finger baseline jumps the view.
+    // Not published: it only gates gesture handlers and never affects layout.
+    private(set) var isMultiTouchSequenceActive = false
+
+    func beginMultiTouchSequence() {
+        isMultiTouchSequenceActive = true
+    }
+
+    func endMultiTouchSequence() {
+        isMultiTouchSequenceActive = false
+    }
+
     func reset() {
         guard zoom != 1.0 || pan != SIMD2<Float>(0, 0) else { return }
         objectWillChange.send()

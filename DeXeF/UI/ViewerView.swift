@@ -12,6 +12,7 @@ struct ViewerView: View {
     let document: DXFDocument
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.scenePhase) private var scenePhase
     #if os(iOS)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     #endif
@@ -21,7 +22,8 @@ struct ViewerView: View {
     @AppStorage(PreferenceKeys.lightPaletteColors) private var lightPaletteColors = ""
     @AppStorage(PreferenceKeys.darkPaletteColors) private var darkPaletteColors = ""
     @AppStorage(PreferenceKeys.coordinateDisplayUnit) private var coordinateDisplayUnitRawValue = CoordinateDisplayUnit.drawing.rawValue
-    @AppStorage(PreferenceKeys.showsHUD) private var showsHUD = true
+    @AppStorage(PreferenceKeys.showsHUD) private var showsHUD = false
+    @AppStorage(PreferenceKeys.distractionFree) private var distractionFreeChrome = false
     @AppStorage(PreferenceKeys.showsGridMarks) private var showsGridMarks = true
     @AppStorage(PreferenceKeys.selectsCurveSegments) private var selectsCurveSegments = false
     @AppStorage(PreferenceKeys.textFontName) private var textFontName = DXFRenderStyle.defaultTextFontName
@@ -33,6 +35,20 @@ struct ViewerView: View {
 
     @State private var visibleLayers: Set<String>
     @State private var isShowingPreferences = false
+    @State private var pendingExport: PendingDocumentExport?
+    #if os(macOS)
+    // Mirrors the AppKit auto-hide state; drives the value-based toolbar
+    // visibility toggle so the canvas is never structurally rebuilt.
+    @State private var macChromeAutoHidden = false
+    #endif
+    #if os(iOS)
+    // Distraction-free chrome is pointer-gated: bars only hide once a pointer
+    // has been seen, so touch-only use is unaffected.
+    @State private var hasSeenDistractionFreePointer = false
+    @State private var isPointerInChromeRevealArea = false
+    @State private var distractionFreeLastHoverY: CGFloat?
+    @State private var distractionFreeHideTask: Task<Void, Never>?
+    #endif
     @State private var pointerLocation: CGPoint?
     @State private var selectedVertices: [SIMD2<Float>] = []
     @State private var selectedEdge: ViewerSelectedEdge?
@@ -50,91 +66,130 @@ struct ViewerView: View {
         _interactionGeometry = State(initialValue: ViewerInteractionGeometry(scene: document.scene, visibleLayers: initialVisibleLayers, textFontName: DXFRenderStyle.defaultTextFontName, selectsCurveSegments: false))
     }
 
+    // The shell is layered into named sub-views so each modifier chain stays
+    // small enough for the editor's type-checker (one giant chain times out
+    // SourceKit's live diagnostics even when full builds succeed).
     var body: some View {
+        wiredShell
+    }
+
+    private var navigationShell: some View {
         NavigationSplitView(
             columnVisibility: sidebarVisibility,
             preferredCompactColumn: $preferredCompactColumn
         ) {
-            LayerSidebar(
-                scene: document.scene,
-                documentName: document.displayName,
-                palette: renderStyle.palette,
-                showsLayerActions: isSidebarOpen,
-                onShowDocument: showDocumentColumn,
-                visibleLayers: $visibleLayers
-            )
-                .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 340)
-                .background {
-                    GeometryReader { proxy in
-                        Color.clear.preference(key: SidebarWidthPreferenceKey.self, value: proxy.size.width)
-                    }
-                }
+            sidebarColumn
         } detail: {
             documentSurface
         }
-        .fullBleedDocumentChrome()
-        .onAppear {
-            syncPreferredCompactColumn()
-        }
-        .focusedSceneValue(\.defaultZoomAction, { viewport.reset() })
-        .focusedSceneValue(\.clearSelectionAction, { clearSelection() })
-        .focusedSceneValue(\.showsHUD, $showsHUD)
-        .background(ToolbarTopInsetReporter { topInset in
-            if abs(toolbarTopInset - topInset) > 0.5 {
-                toolbarTopInset = topInset
+    }
+
+    private var sidebarColumn: some View {
+        LayerSidebar(
+            scene: document.scene,
+            documentName: document.displayName,
+            palette: renderStyle.palette,
+            showsLayerActions: isSidebarOpen,
+            onShowDocument: showDocumentColumn,
+            visibleLayers: $visibleLayers
+        )
+            .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 340)
+            .background {
+                GeometryReader { proxy in
+                    Color.clear.preference(key: SidebarWidthPreferenceKey.self, value: proxy.size.width)
+                }
             }
-        })
+    }
+
+    private var chromeShell: some View {
         #if os(macOS)
-        .background(WindowChromeConfigurator())
+        return navigationShell
+            .toolbar(macOSChromeHidden ? .hidden : .visible, for: .windowToolbar)
+            .background(DistractionFreeWindowChromeConfigurator(
+                isEnabled: distractionFreeChrome,
+                onChromeHiddenChange: { macChromeAutoHidden = $0 }
+            ))
+            .background(WindowChromeConfigurator())
+        #else
+        return navigationShell
         #endif
-        .sheet(isPresented: $isShowingPreferences) {
-            NavigationStack {
-                PreferencesView()
+    }
+
+    private var presentingShell: some View {
+        chromeShell
+            .focusedSceneValue(\.defaultZoomAction, { viewport.reset() })
+            .focusedSceneValue(\.clearSelectionAction, { clearSelection() })
+            .focusedSceneValue(\.showsHUD, $showsHUD)
+            .focusedSceneValue(\.viewerDocument, document)
+            .focusedSceneValue(\.exportDocumentAction, { format in requestExport(format) })
+            .fileExporter(
+                isPresented: exportPresentationBinding,
+                document: pendingExport.map { DataExportDocument(data: $0.data) },
+                contentType: pendingExport?.format.contentType ?? .dxf,
+                defaultFilename: pendingExport.map { DocumentTransfer.exportFilename(for: document, format: $0.format) }
+            ) { _ in
+                pendingExport = nil
             }
-        }
-        .task(id: document.id) {
-            visibleLayers = Set(document.scene.layers.filter(\.isVisibleByDefault).map(\.name))
-            pointerLocation = nil
-            selectedVertices = []
-            selectedEdge = nil
-            selectedCurve = nil
-            restoreViewport()
-            interactionGeometry = ViewerInteractionGeometry(scene: document.scene, visibleLayers: visibleLayers, textFontName: textFontName, selectsCurveSegments: selectsCurveSegments)
-        }
-        .onChange(of: visibleLayers) { _, _ in
-            pointerLocation = nil
-            selectedVertices = []
-            selectedEdge = nil
-            selectedCurve = nil
-            interactionGeometry = ViewerInteractionGeometry(scene: document.scene, visibleLayers: visibleLayers, textFontName: textFontName, selectsCurveSegments: selectsCurveSegments)
-        }
-        .onChange(of: textFontName) { _, _ in
-            pointerLocation = nil
-            clearSelection()
-            interactionGeometry = ViewerInteractionGeometry(scene: document.scene, visibleLayers: visibleLayers, textFontName: textFontName, selectsCurveSegments: selectsCurveSegments)
-        }
-        .onChange(of: selectsCurveSegments) { _, _ in
-            pointerLocation = nil
-            clearSelection()
-            interactionGeometry = ViewerInteractionGeometry(scene: document.scene, visibleLayers: visibleLayers, textFontName: textFontName, selectsCurveSegments: selectsCurveSegments)
-        }
-        .onChange(of: sidebarVisibilityRawValue) { _, _ in
-            syncPreferredCompactColumn()
-        }
-        .onChange(of: viewport.zoom) { _, newValue in
-            storedZoom = Double(newValue)
-            hasSavedViewport = true
-        }
-        .onChange(of: viewport.pan) { _, newValue in
-            storedPanX = Double(newValue.x)
-            storedPanY = Double(newValue.y)
-            hasSavedViewport = true
-        }
-        .onPreferenceChange(SidebarWidthPreferenceKey.self) { width in
-            if width > 0 {
-                sidebarWidth = width
+            .background(ToolbarTopInsetReporter { topInset in
+                if abs(toolbarTopInset - topInset) > 0.5 {
+                    toolbarTopInset = topInset
+                }
+            })
+            .sheet(isPresented: $isShowingPreferences) {
+                NavigationStack {
+                    PreferencesView()
+                }
             }
-        }
+    }
+
+    private var wiredShell: some View {
+        presentingShell
+            .onAppear {
+                syncPreferredCompactColumn()
+                prepareForCurrentDocument()
+            }
+            .onChange(of: document.id) { _, _ in
+                prepareForCurrentDocument()
+            }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active {
+                    publishActiveDocument()
+                }
+            }
+            .onChange(of: visibleLayers) { _, _ in
+                pointerLocation = nil
+                selectedVertices = []
+                selectedEdge = nil
+                selectedCurve = nil
+                interactionGeometry = ViewerInteractionGeometry(scene: document.scene, visibleLayers: visibleLayers, textFontName: textFontName, selectsCurveSegments: selectsCurveSegments)
+            }
+            .onChange(of: textFontName) { _, _ in
+                pointerLocation = nil
+                clearSelection()
+                interactionGeometry = ViewerInteractionGeometry(scene: document.scene, visibleLayers: visibleLayers, textFontName: textFontName, selectsCurveSegments: selectsCurveSegments)
+            }
+            .onChange(of: selectsCurveSegments) { _, _ in
+                pointerLocation = nil
+                clearSelection()
+                interactionGeometry = ViewerInteractionGeometry(scene: document.scene, visibleLayers: visibleLayers, textFontName: textFontName, selectsCurveSegments: selectsCurveSegments)
+            }
+            .onChange(of: sidebarVisibilityRawValue) { _, _ in
+                syncPreferredCompactColumn()
+            }
+            .onChange(of: viewport.zoom) { _, newValue in
+                storedZoom = Double(newValue)
+                hasSavedViewport = true
+            }
+            .onChange(of: viewport.pan) { _, newValue in
+                storedPanX = Double(newValue.x)
+                storedPanY = Double(newValue.y)
+                hasSavedViewport = true
+            }
+            .onPreferenceChange(SidebarWidthPreferenceKey.self) { width in
+                if width > 0 {
+                    sidebarWidth = width
+                }
+            }
     }
 
     private var documentSurface: some View {
@@ -191,6 +246,20 @@ struct ViewerView: View {
                 }
             }
         }
+        .toolbar(iosToolbarVisibility, for: .navigationBar)
+        .overlay(alignment: .top) {
+            distractionFreeRevealTouchTarget
+        }
+        .onContinuousHover { phase in
+            handleDistractionFreeHover(phase)
+        }
+        .animation(.easeInOut(duration: 0.18), value: shouldHideIOSChrome)
+        .onChange(of: distractionFreeChrome) { _, enabled in
+            handleDistractionFreePreferenceChange(enabled)
+        }
+        .onDisappear {
+            cancelDistractionFreeHide()
+        }
         #endif
     }
 
@@ -245,6 +314,46 @@ struct ViewerView: View {
         selectedVertices.removeAll()
         selectedEdge = nil
         selectedCurve = nil
+    }
+
+    private var exportPresentationBinding: Binding<Bool> {
+        Binding {
+            pendingExport != nil
+        } set: { isPresented in
+            if !isPresented {
+                pendingExport = nil
+            }
+        }
+    }
+
+    private func requestExport(_ format: DocumentExportFormat) {
+        guard let data = DocumentTransfer.data(for: document, format: format) else { return }
+        pendingExport = PendingDocumentExport(format: format, data: data)
+    }
+
+    // Runs on appearance and whenever the document changes — synchronously,
+    // within a view update, because `restoreViewport()` reads `@SceneStorage`
+    // values and SwiftUI only serves those while the view is installed
+    // (reading them from `.task`/escaping closures warns and returns defaults).
+    private func prepareForCurrentDocument() {
+        publishActiveDocument()
+        visibleLayers = Set(document.scene.layers.filter(\.isVisibleByDefault).map(\.name))
+        pointerLocation = nil
+        selectedVertices = []
+        selectedEdge = nil
+        selectedCurve = nil
+        restoreViewport()
+        interactionGeometry = ViewerInteractionGeometry(scene: document.scene, visibleLayers: visibleLayers, textFontName: textFontName, selectsCurveSegments: selectsCurveSegments)
+    }
+
+    // Mirrors this viewer's document into the shared broker that iOS menu
+    // commands read, since focused scene values don't reach commands without
+    // an on-screen focus owner there.
+    private func publishActiveDocument() {
+        #if os(iOS)
+        ActiveViewerDocument.shared.document = document
+        ActiveViewerDocument.shared.exportAction = { format in requestExport(format) }
+        #endif
     }
 
     // Restore the persisted zoom/pan on (re)appearance — including scene state
@@ -332,7 +441,7 @@ struct ViewerView: View {
 
     private var viewportMinimumContentInsets: ViewportInsets {
         ViewportInsets(
-            top: Float(toolbarTopInset),
+            top: effectiveTopInset,
             leading: shouldReserveSidebarInset ? Float(sidebarWidth) : 0,
             bottom: 0,
             trailing: 0
@@ -349,6 +458,115 @@ struct ViewerView: View {
         return isSidebarOpen
     }
 
+    // While distraction-free is on, the top viewport inset is pinned so the
+    // drawing doesn't shift each time the chrome auto-hides and reveals.
+    private var effectiveTopInset: Float {
+        if distractionFreeChrome {
+            #if os(macOS)
+            return Self.distractionFreeTopInset
+            #else
+            return max(Float(toolbarTopInset), Self.distractionFreeTopInset)
+            #endif
+        }
+        return Float(toolbarTopInset)
+    }
+
+    private static var distractionFreeTopInset: Float { 52 }
+
+    #if os(macOS)
+    private var macOSChromeHidden: Bool {
+        distractionFreeChrome && macChromeAutoHidden
+    }
+    #endif
+
+    #if os(iOS)
+    private static let distractionFreeRevealHeight: CGFloat = 112
+    private static let distractionFreeHideHeight: CGFloat = 152
+    private static let distractionFreeHideDelay: UInt64 = 220_000_000
+
+    private var shouldHideIOSChrome: Bool {
+        distractionFreeChrome && hasSeenDistractionFreePointer && !isPointerInChromeRevealArea
+    }
+
+    private var iosToolbarVisibility: Visibility {
+        shouldHideIOSChrome ? .hidden : .visible
+    }
+
+    @ViewBuilder
+    private var distractionFreeRevealTouchTarget: some View {
+        if shouldHideIOSChrome {
+            Color.clear
+                .contentShape(Rectangle())
+                .frame(height: Self.distractionFreeRevealHeight)
+                .ignoresSafeArea(.container, edges: .top)
+                .onTapGesture {
+                    revealDistractionFreeChrome()
+                }
+                .onContinuousHover { phase in
+                    handleDistractionFreeHover(phase)
+                }
+        }
+    }
+
+    private func handleDistractionFreeHover(_ phase: HoverPhase) {
+        guard distractionFreeChrome else { return }
+        switch phase {
+        case .active(let location):
+            hasSeenDistractionFreePointer = true
+            distractionFreeLastHoverY = location.y
+            if location.y <= Self.distractionFreeRevealHeight {
+                cancelDistractionFreeHide()
+                setDistractionFreeChromeRevealed(true)
+            } else if location.y >= Self.distractionFreeHideHeight {
+                scheduleDistractionFreeHide()
+            }
+        case .ended:
+            // Crossing toolbar buttons can emit transient `.ended` phases even
+            // though the pointer is still in the reveal region; only hide once
+            // the pointer has actually been seen below the hysteresis band.
+            if let distractionFreeLastHoverY,
+               distractionFreeLastHoverY >= Self.distractionFreeHideHeight {
+                scheduleDistractionFreeHide()
+            }
+        }
+    }
+
+    private func revealDistractionFreeChrome() {
+        hasSeenDistractionFreePointer = true
+        distractionFreeLastHoverY = 0
+        cancelDistractionFreeHide()
+        setDistractionFreeChromeRevealed(true)
+    }
+
+    private func handleDistractionFreePreferenceChange(_ enabled: Bool) {
+        guard !enabled else { return }
+        cancelDistractionFreeHide()
+        hasSeenDistractionFreePointer = false
+        distractionFreeLastHoverY = nil
+        setDistractionFreeChromeRevealed(false)
+    }
+
+    private func setDistractionFreeChromeRevealed(_ isRevealed: Bool) {
+        guard isPointerInChromeRevealArea != isRevealed else { return }
+        isPointerInChromeRevealArea = isRevealed
+    }
+
+    private func scheduleDistractionFreeHide() {
+        guard isPointerInChromeRevealArea else { return }
+        cancelDistractionFreeHide()
+        distractionFreeHideTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: Self.distractionFreeHideDelay)
+            guard !Task.isCancelled else { return }
+            setDistractionFreeChromeRevealed(false)
+        }
+    }
+
+    private func cancelDistractionFreeHide() {
+        distractionFreeHideTask?.cancel()
+        distractionFreeHideTask = nil
+    }
+    #endif
+
     // On iPhone (compact) the layer sidebar and the drawing are separate
     // stacked screens; the document name titles the sidebar instead, so the
     // graphical view shows no title. On iPad/macOS the two columns are visible
@@ -361,6 +579,11 @@ struct ViewerView: View {
         #endif
         return document.displayName
     }
+}
+
+private struct PendingDocumentExport {
+    let format: DocumentExportFormat
+    let data: Data
 }
 
 private struct SidebarWidthPreferenceKey: PreferenceKey {
@@ -399,6 +622,7 @@ private struct ViewerInteractionOverlay: View {
             ZStack(alignment: .bottomTrailing) {
                 if let snapshot {
                     snapMarker(snapshot: snapshot)
+                    measurementOverlay(snapshot: snapshot)
                 }
 
                 if showsHUD {
@@ -430,6 +654,128 @@ private struct ViewerInteractionOverlay: View {
                     .position(pointerState.screenPoint)
             }
         }
+    }
+
+    @ViewBuilder
+    private func measurementOverlay(snapshot: ViewerInteractionSnapshot) -> some View {
+        if let measurement = measuredSegment(snapshot: snapshot) {
+            MeasurementBadgeOverlay(
+                start: measurement.start,
+                end: measurement.end,
+                drawsLine: measurement.drawsLine,
+                text: measurement.text
+            )
+        }
+    }
+
+    private func measuredSegment(
+        snapshot: ViewerInteractionSnapshot
+    ) -> (start: CGPoint, end: CGPoint, drawsLine: Bool, text: String)? {
+        if selectedVertices.count == 2 {
+            return (
+                snapshot.screenPoint(for: selectedVertices[0]),
+                snapshot.screenPoint(for: selectedVertices[1]),
+                true,
+                measurementText(simd_distance(selectedVertices[0], selectedVertices[1]))
+            )
+        }
+
+        if let selectedEdge {
+            return (
+                snapshot.screenPoint(for: selectedEdge.start),
+                snapshot.screenPoint(for: selectedEdge.end),
+                true,
+                measurementText(selectedEdge.length)
+            )
+        }
+
+        if let selectedCurve, let midPoint = selectedCurve.points.middleElement {
+            // The curve itself is already highlighted by the renderer; just pin
+            // the length badge to its middle.
+            let point = snapshot.screenPoint(for: midPoint)
+            return (point, point, false, measurementText(selectedCurve.length))
+        }
+
+        return nil
+    }
+
+    private func measurementText(_ value: Float) -> String {
+        let displayValue = displayUnit.displayValue(value, from: declaredUnit)
+        let formatted = formatMeasurementValue(Double(displayValue))
+        // Unitless drawings (no INSUNITS) still get a label on the pill, using
+        // generic drawing units.
+        let abbreviation = displayUnit.displayAbbreviation(from: declaredUnit) ?? "units"
+        return "\(formatted) \(abbreviation)"
+    }
+
+    private func formatMeasurementValue(_ value: Double) -> String {
+        let absoluteValue = abs(value)
+        if absoluteValue == 0 || absoluteValue >= 0.001 {
+            return String(format: "%.3f", value)
+        }
+        return String(format: "%.6g", value)
+    }
+}
+
+/// The measurement affordance: a solid accent line between the two selected
+/// points with the distance in a flat accent pill at the midpoint. The pill
+/// runs parallel to the line on screen and flips to stay upright when the line
+/// runs right-to-left.
+private struct MeasurementBadgeOverlay: View {
+    let start: CGPoint
+    let end: CGPoint
+    let drawsLine: Bool
+    let text: String
+
+    var body: some View {
+        ZStack {
+            if drawsLine {
+                Path { path in
+                    path.move(to: start)
+                    path.addLine(to: end)
+                }
+                .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+            }
+
+            Text(text)
+                .font(.system(size: 12, weight: .medium))
+                .monospacedDigit()
+                .lineLimit(1)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 7)
+                .padding(.vertical, 3.5)
+                .background {
+                    // Corner radius ≈ 0.42 × pill height: a near-capsule chip,
+                    // flat accent fill, no border or shadow.
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(Color.accentColor)
+                }
+                .rotationEffect(labelAngle)
+                .position(midpoint)
+        }
+    }
+
+    private var midpoint: CGPoint {
+        CGPoint(x: (start.x + end.x) * 0.5, y: (start.y + end.y) * 0.5)
+    }
+
+    private var labelAngle: Angle {
+        guard drawsLine else { return .zero }
+        var angle = atan2(end.y - start.y, end.x - start.x)
+        // Keep the text upright: flip 180° when the line runs right-to-left.
+        if angle > .pi / 2 {
+            angle -= .pi
+        } else if angle < -.pi / 2 {
+            angle += .pi
+        }
+        return .radians(angle)
+    }
+}
+
+private extension Array {
+    var middleElement: Element? {
+        guard !isEmpty else { return nil }
+        return self[count / 2]
     }
 }
 
@@ -1113,16 +1459,6 @@ private struct VertexKey: Hashable {
     }
 }
 
-extension View {
-    @ViewBuilder
-    func fullBleedDocumentChrome() -> some View {
-        #if os(macOS)
-        toolbarBackground(.hidden, for: .windowToolbar)
-        #else
-        toolbarBackground(.hidden, for: .navigationBar)
-        #endif
-    }
-}
 
 private extension NavigationSplitViewVisibility {
     init(storageValue: String) {
@@ -1272,8 +1608,10 @@ private struct WindowChromeConfigurator: NSViewRepresentable {
 
     private func configure(window: NSWindow?) {
         guard let window else { return }
+        // Full-size content keeps the canvas able to occupy the titlebar
+        // region when distraction-free auto-hides the toolbar; the titlebar
+        // itself uses the standard opaque appearance.
         window.styleMask.insert(.fullSizeContentView)
-        window.titlebarAppearsTransparent = true
         window.toolbarStyle = .unified
         window.setFrameAutosaveName("DeXeFDocumentWindow")
         window.isRestorable = true

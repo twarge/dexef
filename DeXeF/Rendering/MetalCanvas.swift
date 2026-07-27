@@ -48,6 +48,16 @@ struct MetalCanvas: View {
     private func dragGesture(in size: CGSize) -> some Gesture {
         DragGesture(minimumDistance: 1)
             .onChanged { value in
+                // Once a second finger is down, the pinch handler owns the
+                // viewport for the rest of the touch sequence. Dropping the
+                // baseline (not just skipping) ensures no stale anchor survives
+                // to apply the centroid jump that occurs when finger counts
+                // change mid-gesture.
+                guard !viewport.isMultiTouchSequenceActive else {
+                    dragStartPan = nil
+                    return
+                }
+
                 if dragStartPan == nil {
                     dragStartPan = viewport.pan
                 }
@@ -219,14 +229,50 @@ struct MetalCanvasView: UIViewRepresentable {
     }
 
     func updateUIView(_ view: MTKView, context: Context) {
+        (view as? TouchTrackingMetalView)?.viewportController = viewport
         context.coordinator.update(scene: scene, visibleLayers: visibleLayers, viewport: viewport, renderStyle: renderStyle, selectionState: selectionState)
     }
 
     private func makeView(context: Context) -> MTKView {
-        let view = MTKView(frame: .zero, device: MTLCreateSystemDefaultDevice())
+        let view = TouchTrackingMetalView(frame: .zero, device: MTLCreateSystemDefaultDevice())
+        view.viewportController = viewport
         context.coordinator.attach(to: view, viewport: viewport)
         context.coordinator.update(scene: scene, visibleLayers: visibleLayers, viewport: viewport, renderStyle: renderStyle, selectionState: selectionState)
         return view
+    }
+}
+
+/// Tracks how many direct touches are on the canvas so the multi-touch flag is
+/// set the instant a second finger lands — `touchesBegan` runs before any
+/// gesture-recognizer callback, which is what lets the SwiftUI drag gesture be
+/// suppressed before it can apply the centroid jump.
+private final class TouchTrackingMetalView: MTKView {
+    weak var viewportController: ViewportController?
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        if activeTouchCount(for: event) >= 2 {
+            viewportController?.beginMultiTouchSequence()
+        }
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        if activeTouchCount(for: event) == 0 {
+            viewportController?.endMultiTouchSequence()
+        }
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesCancelled(touches, with: event)
+        if activeTouchCount(for: event) == 0 {
+            viewportController?.endMultiTouchSequence()
+        }
+    }
+
+    private func activeTouchCount(for event: UIEvent?) -> Int {
+        guard let touches = event?.touches(for: self) else { return 0 }
+        return touches.count { $0.phase != .ended && $0.phase != .cancelled }
     }
 }
 #endif

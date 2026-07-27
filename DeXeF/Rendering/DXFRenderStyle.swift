@@ -60,6 +60,7 @@ struct ViewportInsets: Equatable {
 
 enum PreferenceKeys {
     static let theme = "preferences.theme"
+    static let distractionFree = "preferences.distractionFree"
     static let lineThickness = "preferences.lineThickness"
     static let showsHUD = "preferences.showsHUD"
     static let showsGridMarks = "preferences.showsGridMarks"

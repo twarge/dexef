@@ -5,8 +5,9 @@ import SwiftUI
 
 struct PreferencesView: View {
     @AppStorage(PreferenceKeys.theme) private var themeRawValue = AppTheme.system.rawValue
+    @AppStorage(PreferenceKeys.distractionFree) private var distractionFree = false
     @AppStorage(PreferenceKeys.lineThickness) private var lineThickness = DXFRenderStyle.defaultLineThickness
-    @AppStorage(PreferenceKeys.showsHUD) private var showsHUD = true
+    @AppStorage(PreferenceKeys.showsHUD) private var showsHUD = false
     @AppStorage(PreferenceKeys.showsGridMarks) private var showsGridMarks = true
     @AppStorage(PreferenceKeys.selectsCurveSegments) private var selectsCurveSegments = false
     @AppStorage(PreferenceKeys.textFontName) private var textFontName = DXFRenderStyle.defaultTextFontName
@@ -30,6 +31,17 @@ struct PreferencesView: View {
                 .pickerStyle(.segmented)
             }
             #endif
+
+            Section("Window") {
+                VStack(alignment: .leading, spacing: 10) {
+                    Toggle("Distraction-Free Mode", isOn: $distractionFree)
+
+                    Text("Hide the toolbar until you move the pointer to the top of the window.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
 
             Section("Drawing") {
                 Picker("Coordinate Units", selection: $coordinateDisplayUnitRawValue) {

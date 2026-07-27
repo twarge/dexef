@@ -68,7 +68,6 @@ struct LayerSidebar: View {
         }
         .navigationTitle(navigationTitleText)
         .scrollContentBackground(.hidden)
-        .fullBleedDocumentChrome()
         .toolbar {
             if showsLayerActions {
                 ToolbarItemGroup {

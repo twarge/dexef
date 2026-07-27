@@ -13,9 +13,6 @@ import UIKit
 @main
 struct DeXeFApp: App {
     @AppStorage(PreferenceKeys.theme) private var themeRawValue = AppTheme.system.rawValue
-    #if os(iOS)
-    @UIApplicationDelegateAdaptor(DemoDocumentBrowserInstaller.self) private var demoDocumentBrowserInstaller
-    #endif
 
     var body: some Scene {
         documentScene
@@ -23,10 +20,7 @@ struct DeXeFApp: App {
         #if os(iOS)
         if #available(iOS 18.0, *) {
             DocumentGroupLaunchScene("DeXeF") {
-                DefaultDocumentGroupLaunchActions()
-                NewDocumentButton("Open Demo Document", for: DXFDocument.self, contentType: .dxf) {
-                    try DemoDocument.document()
-                }
+                DemoDocumentLaunchButton()
             }
         }
         #endif
@@ -41,12 +35,14 @@ struct DeXeFApp: App {
 
     private var documentScene: some Scene {
         #if os(iOS)
-        DocumentGroup(newDocument: DXFDocument()) { file in
+        DocumentGroup(newDocument: DemoDocument.defaultDocument()) { file in
             ViewerView(document: file.document)
                 .preferredColorScheme(AppTheme.stored(themeRawValue).colorScheme)
         }
         .commands {
             ViewerCommands()
+            NewWindowCommands()
+            DocumentTransferCommands()
         }
         #else
         DocumentGroup(viewing: DXFDocument.self) { file in
@@ -55,6 +51,7 @@ struct DeXeFApp: App {
         }
         .commands {
             ViewerCommands()
+            DocumentTransferCommands()
             #if os(macOS)
             DemoDocumentCommands()
             AppInfoCommands()
@@ -168,146 +165,74 @@ private enum AboutPanel {
 #endif
 
 #if os(iOS)
-@MainActor
-private final class DemoDocumentBrowserInstaller: NSObject, UIApplicationDelegate {
-    private static let demoButtonTag = 0xD3EFFE
-
-    func application(
-        _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
-    ) -> Bool {
-        guard #unavailable(iOS 18.0) else { return true }
-        scheduleInstall()
-        return true
-    }
-
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        guard #unavailable(iOS 18.0) else { return }
-        scheduleInstall()
-    }
-
-    private func scheduleInstall() {
-        for delay in [0.0, 0.2, 0.6, 1.2] {
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                Self.installDemoButtons()
+// ⌘N opens a fresh window (scene) showing the document browser. This replaces
+// the system's New Document shortcut; creating documents stays available from
+// the browser's "+". Requires UIApplicationSupportsMultipleScenes (declared in
+// Info-iOS.plist), and only iPad shows multiple windows — on iPhone the
+// request is a no-op.
+private struct NewWindowCommands: Commands {
+    var body: some Commands {
+        CommandGroup(replacing: .newItem) {
+            Button("New Window") {
+                UIApplication.shared.activateSceneSession(for: UISceneSessionActivationRequest())
             }
+            .keyboardShortcut("n", modifiers: [.command])
         }
     }
+}
 
-    private static func installDemoButtons() {
-        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
-        for window in scenes.flatMap(\.windows) {
-            for browser in documentBrowsers(in: window.rootViewController) {
-                installDemoButton(in: browser)
-            }
-        }
-    }
-
-    private static func installDemoButton(in browser: UIDocumentBrowserViewController) {
-        guard !browser.additionalTrailingNavigationBarButtonItems.contains(where: { $0.tag == demoButtonTag }) else {
-            return
-        }
-
-        let action = UIAction(
-            title: "Open Demo Document",
-            image: UIImage(systemName: "doc.text.magnifyingglass")
-        ) { [weak browser] _ in
-            guard let browser else { return }
-            openDemoDocument(from: browser)
-        }
-
-        let button = UIBarButtonItem(primaryAction: action)
-        button.tag = demoButtonTag
-        button.title = "Demo"
-        button.accessibilityLabel = "Open Demo Document"
-
-        browser.additionalTrailingNavigationBarButtonItems =
-            browser.additionalTrailingNavigationBarButtonItems + [button]
-    }
-
-    private static func openDemoDocument(from browser: UIDocumentBrowserViewController) {
-        do {
-            let sourceURL = try DemoDocument.localDocumentURL()
-            browser.revealDocument(at: sourceURL, importIfNeeded: false) { revealedURL, _ in
-                openDocument(at: revealedURL ?? sourceURL, from: browser)
-            }
-        } catch {
-            return
-        }
-    }
-
-    private static func openDocument(at url: URL, from browser: UIDocumentBrowserViewController) {
-        let selector = #selector(UIDocumentBrowserViewControllerDelegate.documentBrowser(_:didPickDocumentsAt:))
-        if let delegate = browser.delegate, delegate.responds(to: selector) {
-            delegate.documentBrowser?(browser, didPickDocumentsAt: [url])
-        } else {
-            UIApplication.shared.open(url)
-        }
-    }
-
-    private static func documentBrowsers(in rootViewController: UIViewController?) -> [UIDocumentBrowserViewController] {
-        guard let rootViewController else { return [] }
-
-        var browsers: [UIDocumentBrowserViewController] = []
-        if let browser = rootViewController as? UIDocumentBrowserViewController {
-            browsers.append(browser)
-        }
-
-        for child in rootViewController.children {
-            browsers.append(contentsOf: documentBrowsers(in: child))
-        }
-
-        if let navigationController = rootViewController as? UINavigationController {
-            for viewController in navigationController.viewControllers {
-                browsers.append(contentsOf: documentBrowsers(in: viewController))
-            }
-        }
-
-        if let tabBarController = rootViewController as? UITabBarController {
-            for viewController in tabBarController.viewControllers ?? [] {
-                browsers.append(contentsOf: documentBrowsers(in: viewController))
-            }
-        }
-
-        if let presentedViewController = rootViewController.presentedViewController {
-            browsers.append(contentsOf: documentBrowsers(in: presentedViewController))
-        }
-
-        return browsers
+@available(iOS 18.0, *)
+private struct DemoDocumentLaunchButton: View {
+    var body: some View {
+        // The template overload creates an empty file on hardware. The plain
+        // button asks DocumentGroup to serialize its demo-filled default value.
+        NewDocumentButton("Open Demo Document")
     }
 }
 #endif
 
+/// Anchors resource lookup to the bundle that contains this code, whatever the
+/// hosting process's main bundle happens to be.
+private final class DeXeFBundleToken {}
+
 private enum DemoDocument {
     static var bundledURL: URL? {
-        Bundle.main.url(forResource: "DemoEntities", withExtension: "dxf")
+        // The bundle holding this code first: `Bundle.main` is wrong in any
+        // process that isn't the app itself.
+        for bundle in [Bundle(for: DeXeFBundleToken.self), Bundle.main] {
+            if let url = bundle.url(forResource: "DemoEntities", withExtension: "dxf") {
+                return url
+            }
+        }
+        return nil
     }
 
     static func document() throws -> DXFDocument {
         guard let bundledURL else {
             throw CocoaError(.fileNoSuchFile)
         }
-
+        let data = try Data(contentsOf: bundledURL, options: [.mappedIfSafe])
+        guard !data.isEmpty else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
         return try DXFDocument(url: bundledURL)
     }
 
-    static func localDocumentURL() throws -> URL {
-        guard let bundledURL else {
-            throw CocoaError(.fileNoSuchFile)
+    /// Supplies the value serialized by the plain iOS NewDocumentButton.
+    /// macOS uses a viewing-only DocumentGroup and never calls this factory.
+    static func defaultDocument() -> DXFDocument {
+        #if os(iOS)
+        do {
+            let document = try document()
+            NSLog("DeXeF: prepared %d-byte demo document", document.sourceText.utf8.count)
+            return document
+        } catch {
+            NSLog("DeXeF: could not prepare demo document — %@", error.localizedDescription)
+            return DXFDocument()
         }
-
-        let documentsURL = try FileManager.default.url(
-            for: .documentDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: true
-        )
-        let destinationURL = documentsURL.appendingPathComponent("DeXeF Demo.dxf")
-
-        if !FileManager.default.fileExists(atPath: destinationURL.path) {
-            try FileManager.default.copyItem(at: bundledURL, to: destinationURL)
-        }
-        return destinationURL
+        #else
+        return DXFDocument()
+        #endif
     }
 }
 
@@ -337,7 +262,7 @@ private struct ViewerCommands: Commands {
 
     private var showsHUDBinding: Binding<Bool> {
         Binding {
-            showsHUD?.wrappedValue ?? true
+            showsHUD?.wrappedValue ?? false
         } set: { newValue in
             showsHUD?.wrappedValue = newValue
         }
