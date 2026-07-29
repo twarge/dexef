@@ -593,7 +593,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.dexef;
 				PRODUCT_NAME = DeXeF;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -644,7 +644,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.dexef;
 				PRODUCT_NAME = DeXeF;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -802,7 +802,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.twarge.app.dexef.quicklook-preview";
 				PRODUCT_NAME = DeXeFQuickLookPreview;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -837,7 +837,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.twarge.app.dexef.quicklook-preview";
 				PRODUCT_NAME = DeXeFQuickLookPreview;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -871,7 +871,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.dexef.thumbnail;
 				PRODUCT_NAME = DeXeFThumbnail;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -907,7 +907,7 @@
 					"@executable_path/../../../../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.dexef.thumbnail;
 				PRODUCT_NAME = DeXeFThumbnail;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -938,7 +938,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.twarge.app.dexef.thumbnail-ios";
 				PRODUCT_NAME = DeXeFThumbnailiOS;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -972,7 +972,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.twarge.app.dexef.thumbnail-ios";
 				PRODUCT_NAME = DeXeFThumbnailiOS;
 				PROVISIONING_PROFILE_SPECIFIER = "";
