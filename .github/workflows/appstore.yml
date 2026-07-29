@@ -39,6 +39,11 @@ jobs:
     timeout-minutes: 60
     strategy:
       fail-fast: false
+      # One platform at a time: parallel legs share the ASC key and race
+      # Apple's provisioning and upload services, which intermittently fails
+      # the slower leg with misleading errors ("Cloud signing permission
+      # error", "Account credentials have expired").
+      max-parallel: 1
       matrix:
         include:
           - name: iOS
