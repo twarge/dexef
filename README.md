@@ -27,7 +27,7 @@ App and document icons are generated into the asset catalog by:
 swift Scripts/GenerateBlueprintIcons.swift
 ```
 
-`Scripts/release-app.sh` builds, signs, notarizes, and packages the macOS app for direct distribution and exports the iOS App Store IPA. See `Scripts/release-app.sh --help` for credentials and options.
+`make` builds the macOS app and `make ios` the iOS app, exactly as Xcode's Build does. For App Store distribution, archive and upload with Xcode's Organizer (Product → Archive → Distribute App).
 
 ## Support
 
