@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import CoreGraphics
+import CoreTransferable
 import ImageIO
 import SwiftUI
 import UniformTypeIdentifiers
@@ -174,6 +175,59 @@ enum DocumentTransfer {
     }
 }
 
+/// One rendered export of a document, typed for transfer: the payload behind
+/// the share affordances on both platforms. Constructing it is a value copy;
+/// the DXF, PDF, or PNG bytes are only produced when a share target asks.
+struct DocumentShareFile: Transferable {
+    var document: DXFDocument
+    var format: DocumentExportFormat
+
+    var filename: String {
+        DocumentTransfer.exportFilename(for: document, format: format) + "." + format.filenameExtension
+    }
+
+    func data() throws -> Data {
+        guard let data = DocumentTransfer.data(for: document, format: format) else {
+            throw CocoaError(.fileWriteUnknown)
+        }
+        return data
+    }
+
+    /// One representation per export format, each offered only for the
+    /// instance that carries it — so a receiver is never offered DXF text
+    /// under a PNG type. Spelled through the typed helper below to keep the
+    /// builder within the type-checker's budget.
+    static var transferRepresentation: some TransferRepresentation {
+        fileRepresentation(.dxf)
+        fileRepresentation(.pdf)
+        fileRepresentation(.png)
+    }
+
+    private static func fileRepresentation(
+        _ type: UTType
+    ) -> some TransferRepresentation<DocumentShareFile> {
+        let representation = FileRepresentation<DocumentShareFile>(exportedContentType: type) {
+            (file: DocumentShareFile) async throws -> SentTransferredFile in
+            SentTransferredFile(try file.writeTemporaryFile(), allowAccessingOriginalFile: false)
+        }
+        return representation.exportingCondition { (file: DocumentShareFile) -> Bool in
+            file.format.contentType == type
+        }
+    }
+
+    /// File transfers hand over a URL, so the bytes go through a uniquely-named
+    /// temporary directory — which is also what lets the receiver see the real
+    /// filename.
+    func writeTemporaryFile() throws -> URL {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("share-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let url = directory.appendingPathComponent(filename)
+        try data().write(to: url)
+        return url
+    }
+}
+
 /// Write-only payload for `fileExporter`.
 struct DataExportDocument: FileDocument {
     static var readableContentTypes: [UTType] { [] }
@@ -226,6 +280,22 @@ struct DocumentTransferCommands: Commands {
                 }
             }
             .disabled(commandsAreDisabled)
+
+            // macOS-only: the iPadOS menu bar shares these Commands, but iOS
+            // shares through the viewer toolbar's ShareLink menu instead, and
+            // NSSharingServicePicker has no UIKit counterpart here.
+            #if os(macOS)
+            Menu("Share") {
+                ForEach(DocumentExportFormat.allCases) { format in
+                    Button(format.menuTitle) {
+                        if let document = resolvedDocument {
+                            DocumentSharePresenter.share(document, format: format)
+                        }
+                    }
+                }
+            }
+            .disabled(commandsAreDisabled)
+            #endif
         }
 
         CommandGroup(after: .pasteboard) {
@@ -292,6 +362,45 @@ struct DocumentTransferCommands: Commands {
         #endif
     }
 }
+
+#if os(macOS)
+/// Presents the system share picker for one rendered export, anchored on the
+/// key window's content view. The picker is retained for the duration of the
+/// presentation and released once a service is chosen or the menu dismissed.
+@MainActor
+private enum DocumentSharePresenter {
+    private static var activePicker: NSSharingServicePicker?
+    private static let pickerDelegate = PickerDelegate()
+
+    static func share(_ document: DXFDocument, format: DocumentExportFormat) {
+        guard let url = try? DocumentShareFile(document: document, format: format).writeTemporaryFile(),
+              let anchor = NSApp.keyWindow?.contentView
+        else {
+            NSSound.beep()
+            return
+        }
+
+        let picker = NSSharingServicePicker(items: [url])
+        picker.delegate = pickerDelegate
+        activePicker = picker
+        picker.show(relativeTo: .zero, of: anchor, preferredEdge: .minY)
+    }
+
+    private final class PickerDelegate: NSObject, NSSharingServicePickerDelegate {
+        // Called with the chosen service, or nil on dismissal; either way the
+        // presentation is over and the picker can go. Delivered on the main
+        // thread, so it is safe to assume isolation.
+        func sharingServicePicker(
+            _ sharingServicePicker: NSSharingServicePicker,
+            didChoose service: NSSharingService?
+        ) {
+            MainActor.assumeIsolated {
+                DocumentSharePresenter.activePicker = nil
+            }
+        }
+    }
+}
+#endif
 
 #if os(iOS)
 /// The most recently active viewer's document and export hook, read by menu

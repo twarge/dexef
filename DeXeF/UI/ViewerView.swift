@@ -239,6 +239,17 @@ struct ViewerView: View {
         #if !os(macOS)
         .toolbar {
             ToolbarItemGroup {
+                Menu {
+                    ForEach(DocumentExportFormat.allCases) { format in
+                        let file = DocumentShareFile(document: document, format: format)
+                        ShareLink(item: file, preview: SharePreview(file.filename)) {
+                            Text(format.menuTitle)
+                        }
+                    }
+                } label: {
+                    Label("Share", systemImage: "square.and.arrow.up")
+                }
+
                 Button {
                     isShowingPreferences = true
                 } label: {
