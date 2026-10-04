@@ -70,13 +70,15 @@ struct LayerSidebar: View {
         .scrollContentBackground(.hidden)
         .toolbar {
             if showsLayerActions {
-                ToolbarItemGroup {
+                ToolbarItem(placement: layerActionPlacement) {
                     Button {
                         visibleLayers = Set(scene.layers.map(\.name))
                     } label: {
                         Label("Show All", systemImage: "eye")
                     }
+                }
 
+                ToolbarItem(placement: layerActionPlacement) {
                     Button {
                         visibleLayers.removeAll()
                     } label: {
@@ -85,6 +87,17 @@ struct LayerSidebar: View {
                 }
             }
         }
+    }
+
+    // On iOS the layer actions trail the sidebar's own bar (or join the
+    // vertical bar on iPhone Duo). macOS keeps them in the sidebar's section
+    // of the window toolbar, where automatic placement already puts them.
+    private var layerActionPlacement: ToolbarItemPlacement {
+        #if os(iOS)
+        .topBarTrailing
+        #else
+        .automatic
+        #endif
     }
 
     // On iPhone (compact) the sidebar is its own screen, so it carries the

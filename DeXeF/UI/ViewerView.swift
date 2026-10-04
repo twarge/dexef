@@ -27,6 +27,8 @@ struct ViewerView: View {
     @AppStorage(PreferenceKeys.showsGridMarks) private var showsGridMarks = true
     @AppStorage(PreferenceKeys.selectsCurveSegments) private var selectsCurveSegments = false
     @AppStorage(PreferenceKeys.textFontName) private var textFontName = DXFRenderStyle.defaultTextFontName
+    // Side by side (iPad, macOS) a document opens on the drawing alone; the
+    // system sidebar toggle shows the layers, and each window remembers it.
     @SceneStorage("viewer.sidebar.visibility") private var sidebarVisibilityRawValue = NavigationSplitViewVisibility.detailOnly.storageValue
     @SceneStorage("viewer.viewport.saved") private var hasSavedViewport = false
     @SceneStorage("viewer.viewport.zoom") private var storedZoom = 1.0
@@ -53,8 +55,14 @@ struct ViewerView: View {
     @State private var selectedVertices: [SIMD2<Float>] = []
     @State private var selectedEdge: ViewerSelectedEdge?
     @State private var selectedCurve: ViewerSelectedCurve?
+    #if os(macOS)
+    // macOS measures its window toolbar and sidebar directly; iOS takes both
+    // from the detail column's safe area.
     @State private var sidebarWidth: CGFloat = 260
     @State private var toolbarTopInset: CGFloat = 0
+    #endif
+    // Collapsed to one column (iPhone), a document opens on the drawing; the
+    // system back button leads to the layer list and the Document row returns.
     @State private var preferredCompactColumn = NavigationSplitViewColumn.detail
     @State private var interactionGeometry: ViewerInteractionGeometry?
     @StateObject private var viewport = ViewportController()
@@ -89,16 +97,18 @@ struct ViewerView: View {
             scene: document.scene,
             documentName: document.displayName,
             palette: renderStyle.palette,
-            showsLayerActions: isSidebarOpen,
+            showsLayerActions: showsLayerActions,
             onShowDocument: showDocumentColumn,
             visibleLayers: $visibleLayers
         )
             .navigationSplitViewColumnWidth(min: 220, ideal: 260, max: 340)
+            #if os(macOS)
             .background {
                 GeometryReader { proxy in
                     Color.clear.preference(key: SidebarWidthPreferenceKey.self, value: proxy.size.width)
                 }
             }
+            #endif
     }
 
     private var chromeShell: some View {
@@ -130,11 +140,13 @@ struct ViewerView: View {
             ) { _ in
                 pendingExport = nil
             }
+            #if os(macOS)
             .background(ToolbarTopInsetReporter { topInset in
                 if abs(toolbarTopInset - topInset) > 0.5 {
                     toolbarTopInset = topInset
                 }
             })
+            #endif
             .sheet(isPresented: $isShowingPreferences) {
                 NavigationStack {
                     PreferencesView()
@@ -145,7 +157,6 @@ struct ViewerView: View {
     private var wiredShell: some View {
         presentingShell
             .onAppear {
-                syncPreferredCompactColumn()
                 prepareForCurrentDocument()
             }
             .onChange(of: document.id) { _, _ in
@@ -173,9 +184,6 @@ struct ViewerView: View {
                 clearSelection()
                 interactionGeometry = ViewerInteractionGeometry(scene: document.scene, visibleLayers: visibleLayers, textFontName: textFontName, selectsCurveSegments: selectsCurveSegments)
             }
-            .onChange(of: sidebarVisibilityRawValue) { _, _ in
-                syncPreferredCompactColumn()
-            }
             .onChange(of: viewport.zoom) { _, newValue in
                 storedZoom = Double(newValue)
                 hasSavedViewport = true
@@ -185,14 +193,58 @@ struct ViewerView: View {
                 storedPanY = Double(newValue.y)
                 hasSavedViewport = true
             }
+            #if os(macOS)
             .onPreferenceChange(SidebarWidthPreferenceKey.self) { width in
                 if width > 0 {
                     sidebarWidth = width
                 }
             }
+            #endif
     }
 
+    // The drawing is full-bleed, but it fits and centers inside this reader's
+    // safe area, which already accounts for the bars (including iPhone Duo's
+    // vertical bar), a floating sidebar and the home indicator.
     private var documentSurface: some View {
+        GeometryReader { proxy in
+            documentCanvas(contentInsets: viewportContentInsets(safeAreaInsets: proxy.safeAreaInsets))
+        }
+        .navigationTitle(detailNavigationTitle)
+        #if !os(macOS)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    ForEach(DocumentExportFormat.allCases) { format in
+                        let file = DocumentShareFile(document: document, format: format)
+                        ShareLink(item: file, preview: SharePreview(file.filename)) {
+                            Text(format.menuTitle)
+                        }
+                    }
+                } label: {
+                    Label("Share", systemImage: "square.and.arrow.up")
+                }
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    isShowingPreferences = true
+                } label: {
+                    Label("Preferences", systemImage: "gearshape")
+                }
+            }
+        }
+        .toolbar(iosToolbarVisibility, for: .navigationBar)
+        .animation(.easeInOut(duration: 0.18), value: shouldHideIOSChrome)
+        .onChange(of: distractionFreeChrome) { _, enabled in
+            handleDistractionFreePreferenceChange(enabled)
+        }
+        .onDisappear {
+            cancelDistractionFreeHide()
+        }
+        #endif
+    }
+
+    private func documentCanvas(contentInsets: ViewportInsets) -> some View {
         ZStack(alignment: .bottomLeading) {
             MetalCanvas(
                 scene: document.scene,
@@ -200,7 +252,7 @@ struct ViewerView: View {
                 renderStyle: renderStyle,
                 selectionState: metalSelectionState,
                 viewport: viewport,
-                minimumContentInsets: viewportMinimumContentInsets,
+                minimumContentInsets: contentInsets,
                 onPointerMoved: { location, _, _ in
                     pointerLocation = location
                 },
@@ -209,7 +261,7 @@ struct ViewerView: View {
                 },
                 onSelectAt: selectGeometry
             )
-                .ignoresSafeArea(.container, edges: [.top, .leading, .bottom])
+                .ignoresSafeArea(.container)
 
             ViewerInteractionOverlay(
                 renderStyle: renderStyle,
@@ -219,7 +271,7 @@ struct ViewerView: View {
                 showsHUD: showsHUD,
                 declaredUnit: document.scene.unit,
                 displayUnit: CoordinateDisplayUnit.stored(coordinateDisplayUnitRawValue),
-                minimumContentInsets: viewportMinimumContentInsets,
+                minimumContentInsets: contentInsets,
                 selectedVertices: selectedVertices,
                 selectedEdge: selectedEdge,
                 selectedCurve: selectedCurve
@@ -232,44 +284,17 @@ struct ViewerView: View {
         }
         .background {
             renderStyle.palette.background.swiftUIColor
-                .ignoresSafeArea(.container, edges: [.top, .leading, .bottom])
+                .ignoresSafeArea(.container)
         }
-        .ignoresSafeArea(.container, edges: [.top, .leading, .bottom])
-        .navigationTitle(detailNavigationTitle)
+        .ignoresSafeArea(.container)
         #if !os(macOS)
-        .toolbar {
-            ToolbarItemGroup {
-                Menu {
-                    ForEach(DocumentExportFormat.allCases) { format in
-                        let file = DocumentShareFile(document: document, format: format)
-                        ShareLink(item: file, preview: SharePreview(file.filename)) {
-                            Text(format.menuTitle)
-                        }
-                    }
-                } label: {
-                    Label("Share", systemImage: "square.and.arrow.up")
-                }
-
-                Button {
-                    isShowingPreferences = true
-                } label: {
-                    Label("Preferences", systemImage: "gearshape")
-                }
-            }
-        }
-        .toolbar(iosToolbarVisibility, for: .navigationBar)
+        // Attached to the full-bleed layer so hover heights stay measured from
+        // the top edge of the window, where the hidden chrome returns.
         .overlay(alignment: .top) {
             distractionFreeRevealTouchTarget
         }
         .onContinuousHover { phase in
             handleDistractionFreeHover(phase)
-        }
-        .animation(.easeInOut(duration: 0.18), value: shouldHideIOSChrome)
-        .onChange(of: distractionFreeChrome) { _, enabled in
-            handleDistractionFreePreferenceChange(enabled)
-        }
-        .onDisappear {
-            cancelDistractionFreeHide()
         }
         #endif
     }
@@ -381,10 +406,6 @@ struct ViewerView: View {
         preferredCompactColumn = .detail
     }
 
-    private func syncPreferredCompactColumn() {
-        preferredCompactColumn = isSidebarOpen ? .sidebar : .detail
-    }
-
     private func interactionSnapshot(size: CGSize, contentInsets: ViewportInsets) -> ViewerInteractionSnapshot? {
         guard let interactionGeometry else { return nil }
 
@@ -450,36 +471,44 @@ struct ViewerView: View {
         }
     }
 
-    private var viewportMinimumContentInsets: ViewportInsets {
-        ViewportInsets(
-            top: effectiveTopInset,
-            leading: shouldReserveSidebarInset ? Float(sidebarWidth) : 0,
+    // Show All / Hide All act on the layer list, so they appear while it's on
+    // screen: always on iPhone, where it's its own screen, and on iPad/macOS
+    // while the sidebar column is open.
+    private var showsLayerActions: Bool {
+        #if os(iOS)
+        if horizontalSizeClass == .compact {
+            return true
+        }
+        #endif
+        return isSidebarOpen
+    }
+
+    private func viewportContentInsets(safeAreaInsets: EdgeInsets) -> ViewportInsets {
+        #if os(macOS)
+        return ViewportInsets(
+            top: effectiveTopInset(Float(toolbarTopInset)),
+            leading: isSidebarOpen ? Float(sidebarWidth) : 0,
             bottom: 0,
             trailing: 0
         )
-    }
-
-    private var shouldReserveSidebarInset: Bool {
-        #if os(iOS)
-        if horizontalSizeClass == .compact {
-            return false
-        }
+        #else
+        var insets = ViewportInsets(safeAreaInsets)
+        insets.top = effectiveTopInset(insets.top)
+        return insets
         #endif
-
-        return isSidebarOpen
     }
 
     // While distraction-free is on, the top viewport inset is pinned so the
     // drawing doesn't shift each time the chrome auto-hides and reveals.
-    private var effectiveTopInset: Float {
+    private func effectiveTopInset(_ chromeTopInset: Float) -> Float {
         if distractionFreeChrome {
             #if os(macOS)
             return Self.distractionFreeTopInset
             #else
-            return max(Float(toolbarTopInset), Self.distractionFreeTopInset)
+            return max(chromeTopInset, Self.distractionFreeTopInset)
             #endif
         }
-        return Float(toolbarTopInset)
+        return chromeTopInset
     }
 
     private static var distractionFreeTopInset: Float { 52 }
@@ -503,6 +532,11 @@ struct ViewerView: View {
         shouldHideIOSChrome ? .hidden : .visible
     }
 
+    // Distraction-free hides the navigation bar, and the system sidebar toggle
+    // and Share/Preferences with it, so nothing native is left to bring it
+    // back. A pointer does it by hovering near the top, but touches don't
+    // hover, so this invisible tap target exists only while the chrome is
+    // hidden. It's not a sidebar control and takes no part in layout.
     @ViewBuilder
     private var distractionFreeRevealTouchTarget: some View {
         if shouldHideIOSChrome {
@@ -597,6 +631,7 @@ private struct PendingDocumentExport {
     let data: Data
 }
 
+#if os(macOS)
 private struct SidebarWidthPreferenceKey: PreferenceKey {
     static let defaultValue: CGFloat = 0
 
@@ -604,6 +639,7 @@ private struct SidebarWidthPreferenceKey: PreferenceKey {
         value = max(value, nextValue())
     }
 }
+#endif
 
 private struct ViewerInteractionOverlay: View {
     let renderStyle: DXFRenderStyle
@@ -648,8 +684,10 @@ private struct ViewerInteractionOverlay: View {
                         selectedEdge: selectedEdge,
                         selectedCurve: selectedCurve
                     )
-                    .padding(.trailing, 12)
-                    .padding(.bottom, 12)
+                    // The overlay is full-bleed, so the readout keeps clear
+                    // of a trailing bar and the home indicator by the insets.
+                    .padding(.trailing, 12 + CGFloat(contentInsets.trailing))
+                    .padding(.bottom, 12 + CGFloat(contentInsets.bottom))
                 }
             }
             .frame(width: proxy.size.width, height: proxy.size.height, alignment: .bottomTrailing)
@@ -1626,92 +1664,6 @@ private struct WindowChromeConfigurator: NSViewRepresentable {
         window.toolbarStyle = .unified
         window.setFrameAutosaveName("DeXeFDocumentWindow")
         window.isRestorable = true
-    }
-}
-#else
-private struct ToolbarTopInsetReporter: UIViewRepresentable {
-    let onChange: (CGFloat) -> Void
-
-    func makeUIView(context: Context) -> ToolbarTopInsetReportingView {
-        let view = ToolbarTopInsetReportingView()
-        view.onChange = onChange
-        return view
-    }
-
-    func updateUIView(_ view: ToolbarTopInsetReportingView, context: Context) {
-        view.onChange = onChange
-        view.reportSoon()
-    }
-}
-
-private final class ToolbarTopInsetReportingView: UIView {
-    var onChange: ((CGFloat) -> Void)?
-    private var lastReportedTopInset: CGFloat = -1
-
-    override func didMoveToWindow() {
-        super.didMoveToWindow()
-        reportSoon()
-    }
-
-    override func safeAreaInsetsDidChange() {
-        super.safeAreaInsetsDidChange()
-        reportSoon()
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        reportSoon()
-    }
-
-    func reportSoon() {
-        DispatchQueue.main.async { [weak self] in
-            self?.report()
-            DispatchQueue.main.async { [weak self] in
-                self?.report()
-            }
-        }
-    }
-
-    private func report() {
-        let topInset = measuredTopInset()
-        guard topInset.isFinite, abs(topInset - lastReportedTopInset) > 0.5 else { return }
-        lastReportedTopInset = topInset
-        onChange?(topInset)
-    }
-
-    private func measuredTopInset() -> CGFloat {
-        var candidates: [CGFloat] = [
-            safeAreaInsets.top,
-            safeAreaLayoutGuide.layoutFrame.minY
-        ]
-
-        if let window {
-            candidates.append(window.safeAreaInsets.top)
-            appendTopBarCandidates(in: window, to: &candidates)
-        }
-
-        return candidates
-            .filter { $0.isFinite && $0 >= 0 && $0 <= 240 }
-            .max() ?? 0
-    }
-
-    private func appendTopBarCandidates(in view: UIView, to candidates: inout [CGFloat]) {
-        guard !view.isHidden, view.alpha > 0.01 else { return }
-
-        if view is UINavigationBar || view is UIToolbar {
-            let frame = view.convert(view.bounds, to: self)
-            if frame.width > 1,
-               frame.height > 1,
-               frame.maxY > 0,
-               frame.minY < 240,
-               frame.maxY.isFinite {
-                candidates.append(frame.maxY)
-            }
-        }
-
-        for subview in view.subviews {
-            appendTopBarCandidates(in: subview, to: &candidates)
-        }
     }
 }
 #endif
