@@ -673,21 +673,29 @@ private struct ViewerInteractionOverlay: View {
                 }
 
                 if showsHUD {
-                    CoordinateReadout(
-                        pointerState: snapshot.flatMap { snapshot in
-                            pointerLocation.map { snapshot.pointerState(at: $0) }
-                        },
-                        gridSpacing: renderStyle.showsGridMarks ? snapshot?.gridSpacing : nil,
-                        declaredUnit: declaredUnit,
-                        displayUnit: displayUnit,
-                        selectedVertices: selectedVertices,
-                        selectedEdge: selectedEdge,
-                        selectedCurve: selectedCurve
-                    )
-                    // The overlay is full-bleed, so the readout keeps clear
-                    // of a trailing bar and the home indicator by the insets.
-                    .padding(.trailing, 12 + CGFloat(contentInsets.trailing))
-                    .padding(.bottom, 12 + CGFloat(contentInsets.bottom))
+                    // The overlay is full-bleed, so the insets stand in for its
+                    // safe area: the readout keeps clear of a trailing bar and
+                    // the home indicator, and of the rounded corner past them.
+                    Color.clear
+                        .cornerAdaptiveOverlay(alignment: .bottomTrailing, padding: 12) {
+                            CoordinateReadout(
+                                pointerState: snapshot.flatMap { snapshot in
+                                    pointerLocation.map { snapshot.pointerState(at: $0) }
+                                },
+                                gridSpacing: renderStyle.showsGridMarks ? snapshot?.gridSpacing : nil,
+                                declaredUnit: declaredUnit,
+                                displayUnit: displayUnit,
+                                selectedVertices: selectedVertices,
+                                selectedEdge: selectedEdge,
+                                selectedCurve: selectedCurve
+                            )
+                        }
+                        .safeAreaPadding(EdgeInsets(
+                            top: 0,
+                            leading: 0,
+                            bottom: CGFloat(contentInsets.bottom),
+                            trailing: CGFloat(contentInsets.trailing)
+                        ))
                 }
             }
             .frame(width: proxy.size.width, height: proxy.size.height, alignment: .bottomTrailing)
@@ -841,6 +849,12 @@ private struct CoordinateReadout: View {
     private let coordinateValueWidth: CGFloat = 92
     private let cornerRadius: CGFloat = 8
 
+    // Concentric with the window or display corner the readout sits in, and
+    // never tighter than `cornerRadius`.
+    private var panelShape: ConcentricRectangle {
+        ConcentricRectangle(corners: .concentric(minimum: .fixed(cornerRadius)))
+    }
+
     var body: some View {
         let coordinate = formattedCoordinate
 
@@ -868,14 +882,14 @@ private struct CoordinateReadout: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 7)
         .background {
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            panelShape
                 .fill(.ultraThinMaterial)
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            panelShape
                 .fill(.white.opacity(0.08))
                 .blendMode(.overlay)
         }
         .overlay {
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            panelShape
                 .stroke(.white.opacity(0.24), lineWidth: 0.6)
         }
         .shadow(color: .black.opacity(0.16), radius: 14, y: 5)
@@ -1536,6 +1550,93 @@ private extension NavigationSplitViewVisibility {
         default:
             return "automatic"
         }
+    }
+}
+
+/// The axis a view anchored in a container's corner moves along to clear it.
+enum CornerAdaptationAxis: Sendable {
+    case horizontal
+    case vertical
+}
+
+extension View {
+    /// Overlays `content` at `alignment`, inset by `padding` and moved along
+    /// `axis` far enough to clear the container's rounded corner there — the
+    /// display's corner on iPhone, the window's on Mac and iPad — and system
+    /// UI in that corner, such as window controls.
+    func cornerAdaptiveOverlay<Content: View>(
+        alignment: Alignment,
+        padding: CGFloat = 16,
+        axis: CornerAdaptationAxis = .horizontal,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        overlay {
+            CornerAdaptiveAnchor(alignment: alignment, padding: padding, axis: axis, content: content())
+        }
+    }
+}
+
+private struct CornerAdaptiveAnchor<Content: View>: View {
+    let alignment: Alignment
+    let padding: CGFloat
+    let axis: CornerAdaptationAxis
+    let content: Content
+
+    var body: some View {
+        GeometryReader { proxy in
+            content
+                .padding(insets(in: proxy))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
+        }
+    }
+
+    private func insets(in proxy: GeometryProxy) -> EdgeInsets {
+        var insets = EdgeInsets(top: padding, leading: padding, bottom: padding, trailing: padding)
+        let corners = proxy.containerCornerInsets
+        let safe = proxy.safeAreaInsets
+        let top = alignment.vertical == .top
+        let bottom = alignment.vertical == .bottom
+        guard top || bottom else { return insets }
+        let leading = alignment.horizontal != .trailing
+        let trailing = alignment.horizontal != .leading
+
+        func adapt(_ region: CGSize, vertical: CGFloat, horizontal: CGFloat, _ edge: Edge) {
+            var region = region
+            #if os(macOS)
+            // AppKit measures the window controls from the window's edge even
+            // where the toolbar's safe area already holds them, so take off
+            // what the safe area covers; elsewhere the size is measured from
+            // the safe area already.
+            region.width -= horizontal
+            region.height -= vertical
+            #endif
+            // Placed `padding` in from the safe area, the content's corner
+            // clears the region unless it falls inside it on both axes.
+            guard region.width > padding, region.height > padding else { return }
+            switch edge {
+            case .leading: insets.leading = max(insets.leading, region.width)
+            case .trailing: insets.trailing = max(insets.trailing, region.width)
+            case .top: insets.top = max(insets.top, region.height)
+            case .bottom: insets.bottom = max(insets.bottom, region.height)
+            }
+        }
+
+        let verticalEdge: Edge = top ? .top : .bottom
+        let verticalSafe = top ? safe.top : safe.bottom
+        if leading {
+            adapt(top ? corners.topLeading : corners.bottomLeading, vertical: verticalSafe, horizontal: safe.leading,
+                  axis == .horizontal ? .leading : verticalEdge)
+        }
+        if trailing {
+            adapt(top ? corners.topTrailing : corners.bottomTrailing, vertical: verticalSafe, horizontal: safe.trailing,
+                  axis == .horizontal ? .trailing : verticalEdge)
+        }
+        // Centred content stays centred: what one side needs, both get.
+        if alignment.horizontal == .center {
+            insets.leading = max(insets.leading, insets.trailing)
+            insets.trailing = insets.leading
+        }
+        return insets
     }
 }
 
