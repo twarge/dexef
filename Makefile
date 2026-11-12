@@ -8,10 +8,12 @@ CONFIGURATION := Debug
 
 all: macos
 
-# Regenerates the app and document icon artwork in the asset catalog. The
-# generated files are committed, so this is only needed after changing the
-# icon design — builds never depend on it (nor does Xcode's).
+# Regenerates the icon artwork: the layered app icon (DeXeF/AppIcon.icon) and
+# the document icon images. The generated files are committed, so this is only
+# needed after changing the icon design — builds never depend on it (nor does
+# Xcode's).
 icons:
+	swift Scripts/GenerateAppIcon.swift
 	swift Scripts/GenerateBlueprintIcons.swift
 
 macos:

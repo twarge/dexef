@@ -20,6 +20,7 @@
 		10000000000000000000010B /* ViewportController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000000B /* ViewportController.swift */; };
 		10000000000000000000010C /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000000E /* PreferencesView.swift */; };
 		10000000000000000000010D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 10000000000000000000000F /* Assets.xcassets */; };
+		100000000000000000000114 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A5 /* AppIcon.icon */; };
 		10000000000000000000010E /* DXFDocumentIcon-64.png in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A0 /* DXFDocumentIcon-64.png */; };
 		10000000000000000000010F /* DXFDocumentIcon-320.png in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A1 /* DXFDocumentIcon-320.png */; };
 		100000000000000000000110 /* Fonts/NationalPark/NationalPark-wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A2 /* Fonts/NationalPark/NationalPark-wght.ttf */; };
@@ -129,6 +130,7 @@
 		10000000000000000000000D /* Info-iOS.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-iOS.plist"; sourceTree = "<group>"; };
 		10000000000000000000000E /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		10000000000000000000000F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1000000000000000000000A5 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		1000000000000000000000A0 /* DXFDocumentIcon-64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "DXFDocumentIcon-64.png"; sourceTree = "<group>"; };
 		1000000000000000000000A1 /* DXFDocumentIcon-320.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "DXFDocumentIcon-320.png"; sourceTree = "<group>"; };
 		1000000000000000000000A2 /* Fonts/NationalPark/NationalPark-wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Fonts/NationalPark/NationalPark-wght.ttf"; sourceTree = "<group>"; };
@@ -195,6 +197,7 @@
 				10000000000000000000000C /* Info.plist */,
 				10000000000000000000000D /* Info-iOS.plist */,
 				10000000000000000000000F /* Assets.xcassets */,
+				1000000000000000000000A5 /* AppIcon.icon */,
 				100000000000000000000012 /* App */,
 				100000000000000000000013 /* Document */,
 				100000000000000000000014 /* DXF */,
@@ -425,6 +428,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				10000000000000000000010D /* Assets.xcassets in Resources */,
+				100000000000000000000114 /* AppIcon.icon in Resources */,
 				10000000000000000000010E /* DXFDocumentIcon-64.png in Resources */,
 				10000000000000000000010F /* DXFDocumentIcon-320.png in Resources */,
 				100000000000000000000110 /* Fonts/NationalPark/NationalPark-wght.ttf in Resources */,

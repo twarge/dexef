@@ -1,60 +1,52 @@
 // Copyright (C) 2026 Twarge LLC
 // SPDX-License-Identifier: Apache-2.0
 
+// Draws the DXF document icon at every size the asset catalog, the Info.plist
+// and the macOS iconset need:
+//
+//     swift Scripts/GenerateBlueprintIcons.swift
+//
+// The app icon is not drawn here: it is an Icon Composer bundle, written by
+// Scripts/GenerateAppIcon.swift.
+
 import AppKit
 import CoreGraphics
 import Foundation
-import ImageIO
-import UniformTypeIdentifiers
 
 enum BlueprintIconGenerator {
     static let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-    static let appIconDirectory = root.appendingPathComponent("DeXeF/Assets.xcassets/AppIcon.appiconset")
     static let imageSetDirectory = root.appendingPathComponent("DeXeF/Assets.xcassets/DXFDocumentIcon.imageset")
     static let resourceDirectory = root.appendingPathComponent("DeXeF/Resources")
     static let documentIconSetDirectory = resourceDirectory.appendingPathComponent("DXFDocument.iconset")
 
     static func run() throws {
-        try FileManager.default.createDirectory(at: appIconDirectory, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(at: imageSetDirectory, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(at: documentIconSetDirectory, withIntermediateDirectories: true)
-
-        for size in appIconSizes {
-            try drawIcon(
-                pixels: size.pixels,
-                destination: appIconDirectory.appendingPathComponent(size.filename),
-                style: .app
-            )
-        }
 
         for size in documentImageSizes {
             try drawIcon(
                 pixels: size.pixels,
-                destination: imageSetDirectory.appendingPathComponent(size.filename),
-                style: .document
+                destination: imageSetDirectory.appendingPathComponent(size.filename)
             )
         }
 
         for size in documentResourceSizes {
             try drawIcon(
                 pixels: size.pixels,
-                destination: resourceDirectory.appendingPathComponent(size.filename),
-                style: .document
+                destination: resourceDirectory.appendingPathComponent(size.filename)
             )
         }
 
         for size in macDocumentIconSizes {
             try drawIcon(
                 pixels: size.pixels,
-                destination: documentIconSetDirectory.appendingPathComponent(size.filename),
-                style: .document
+                destination: documentIconSetDirectory.appendingPathComponent(size.filename)
             )
         }
     }
 
-    private static func drawIcon(pixels: Int, destination: URL, style: IconStyle) throws {
+    private static func drawIcon(pixels: Int, destination: URL) throws {
         let size = CGSize(width: pixels, height: pixels)
-        let isAppIcon = style == .app
         guard let bitmap = NSBitmapImageRep(
             bitmapDataPlanes: nil,
             pixelsWide: pixels,
@@ -73,87 +65,13 @@ enum BlueprintIconGenerator {
         context.setAllowsAntialiasing(true)
         context.setShouldAntialias(true)
         context.clear(CGRect(origin: .zero, size: size))
-        if isAppIcon {
-            drawBlueprintBackground(in: CGRect(origin: .zero, size: size), context: context, colorA: color(0x071625), colorB: color(0x12385A))
-        }
+        drawDocumentIcon(in: CGRect(origin: .zero, size: size), context: context)
 
-        switch style {
-        case .app:
-            drawAppIcon(in: CGRect(origin: .zero, size: size), context: context)
-        case .document:
-            drawDocumentIcon(in: CGRect(origin: .zero, size: size), context: context)
-        }
-
-        let data: Data
-        if isAppIcon, let cgImage = bitmap.cgImage {
-            data = try opaquePNGData(from: cgImage, pixels: pixels)
-        } else {
-            guard let pngData = bitmap.representation(using: .png, properties: [:]) else {
-                throw IconError.couldNotEncode
-            }
-            data = pngData
+        guard let data = bitmap.representation(using: .png, properties: [:]) else {
+            throw IconError.couldNotEncode
         }
 
         try data.write(to: destination)
-    }
-
-    private static func opaquePNGData(from image: CGImage, pixels: Int) throws -> Data {
-        let size = CGSize(width: pixels, height: pixels)
-        let rect = CGRect(origin: .zero, size: size)
-        guard let context = CGContext(
-            data: nil,
-            width: pixels,
-            height: pixels,
-            bitsPerComponent: 8,
-            bytesPerRow: pixels * 4,
-            space: CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
-        ) else {
-            throw IconError.missingContext
-        }
-
-        drawBlueprintBackground(in: rect, context: context, colorA: color(0x071625), colorB: color(0x12385A))
-        context.draw(image, in: rect)
-
-        guard let flattened = context.makeImage() else {
-            throw IconError.couldNotEncode
-        }
-
-        let data = NSMutableData()
-        guard let destination = CGImageDestinationCreateWithData(data, UTType.png.identifier as CFString, 1, nil) else {
-            throw IconError.couldNotEncode
-        }
-
-        CGImageDestinationAddImage(destination, flattened, nil)
-        guard CGImageDestinationFinalize(destination) else {
-            throw IconError.couldNotEncode
-        }
-
-        return data as Data
-    }
-
-    private static func drawAppIcon(in rect: CGRect, context: CGContext) {
-        context.saveGState()
-        let radius = rect.width * 0.22
-        let outer = CGPath(roundedRect: rect.insetBy(dx: rect.width * 0.03, dy: rect.height * 0.03), cornerWidth: radius, cornerHeight: radius, transform: nil)
-        context.addPath(outer)
-        context.clip()
-
-        drawBlueprintBackground(in: rect, context: context, colorA: color(0x071625), colorB: color(0x12385A))
-        drawGrid(in: rect, context: context, spacing: rect.width / 8.0, alpha: 0.28)
-        drawGrid(in: rect, context: context, spacing: rect.width / 32.0, alpha: 0.09)
-
-        let plate = rect.insetBy(dx: rect.width * 0.14, dy: rect.height * 0.15)
-        drawBlueprintSheet(in: plate, context: context, cornerRadius: rect.width * 0.055, fillAlpha: 0.16)
-        drawCone(in: plate.insetBy(dx: plate.width * 0.14, dy: plate.height * 0.16), context: context, lineScale: rect.width)
-        drawWarmReferenceMark(in: plate, context: context)
-
-        context.restoreGState()
-
-        context.addPath(outer)
-        context.setStrokeColor(color(0xB7E6FF, alpha: 0.26))
-        context.setLineWidth(max(1, rect.width * 0.014))
-        context.strokePath()
     }
 
     private static func drawDocumentIcon(in rect: CGRect, context: CGContext) {
@@ -198,18 +116,6 @@ enum BlueprintIconGenerator {
             end: CGPoint(x: rect.maxX, y: rect.minY),
             options: []
         )
-    }
-
-    private static func drawBlueprintSheet(in rect: CGRect, context: CGContext, cornerRadius: CGFloat, fillAlpha: CGFloat) {
-        let path = CGPath(roundedRect: rect, cornerWidth: cornerRadius, cornerHeight: cornerRadius, transform: nil)
-        context.addPath(path)
-        context.setFillColor(color(0xDDF4FF, alpha: fillAlpha))
-        context.fillPath()
-
-        context.addPath(path)
-        context.setStrokeColor(color(0xDDF4FF, alpha: 0.35))
-        context.setLineWidth(max(1, rect.width * 0.013))
-        context.strokePath()
     }
 
     private static func drawGrid(in rect: CGRect, context: CGContext, spacing: CGFloat, alpha: CGFloat, dark: Bool = false) {
@@ -296,16 +202,6 @@ enum BlueprintIconGenerator {
         context.restoreGState()
     }
 
-    private static func drawWarmReferenceMark(in rect: CGRect, context: CGContext) {
-        context.saveGState()
-        context.setStrokeColor(color(0xF6C35B, alpha: 0.9))
-        context.setLineWidth(max(1, rect.width * 0.018))
-        let radius = rect.width * 0.05
-        let center = CGPoint(x: rect.maxX - rect.width * 0.12, y: rect.maxY - rect.height * 0.12)
-        context.strokeEllipse(in: CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2))
-        context.restoreGState()
-    }
-
     private static func drawFold(in rect: CGRect, context: CGContext) {
         let fold = rect.width * 0.25
         let path = CGMutablePath()
@@ -379,11 +275,6 @@ enum BlueprintIconGenerator {
         )
     }
 
-    private enum IconStyle {
-        case app
-        case document
-    }
-
     private enum IconError: Error {
         case missingContext
         case couldNotEncode
@@ -393,28 +284,6 @@ enum BlueprintIconGenerator {
         let filename: String
         let pixels: Int
     }
-
-    private static let appIconSizes: [IconSize] = [
-        IconSize(filename: "app-16.png", pixels: 16),
-        IconSize(filename: "app-20.png", pixels: 20),
-        IconSize(filename: "app-29.png", pixels: 29),
-        IconSize(filename: "app-32.png", pixels: 32),
-        IconSize(filename: "app-40.png", pixels: 40),
-        IconSize(filename: "app-58.png", pixels: 58),
-        IconSize(filename: "app-60.png", pixels: 60),
-        IconSize(filename: "app-64.png", pixels: 64),
-        IconSize(filename: "app-76.png", pixels: 76),
-        IconSize(filename: "app-80.png", pixels: 80),
-        IconSize(filename: "app-87.png", pixels: 87),
-        IconSize(filename: "app-120.png", pixels: 120),
-        IconSize(filename: "app-128.png", pixels: 128),
-        IconSize(filename: "app-152.png", pixels: 152),
-        IconSize(filename: "app-167.png", pixels: 167),
-        IconSize(filename: "app-180.png", pixels: 180),
-        IconSize(filename: "app-256.png", pixels: 256),
-        IconSize(filename: "app-512.png", pixels: 512),
-        IconSize(filename: "app-1024.png", pixels: 1024),
-    ]
 
     private static let documentImageSizes: [IconSize] = [
         IconSize(filename: "dxf-document-icon-1x.png", pixels: 128),

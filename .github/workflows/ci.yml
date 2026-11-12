@@ -36,11 +36,13 @@ jobs:
       - name: Show Xcode version
         run: xcodebuild -version
 
-      # Mirrors `make icons`: regenerate the app and document icons into the
-      # asset catalog before building, so CI also verifies the generator.
+      # Mirrors `make icons`: regenerate the app and document icons before
+      # building, so CI also verifies the generators.
       - name: Generate icons
         if: matrix.name == 'macOS'
-        run: swift Scripts/GenerateBlueprintIcons.swift
+        run: |
+          swift Scripts/GenerateAppIcon.swift
+          swift Scripts/GenerateBlueprintIcons.swift
 
       - name: Build
         run: |
