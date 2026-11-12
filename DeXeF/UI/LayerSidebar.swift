@@ -11,7 +11,7 @@ struct LayerSidebar: View {
     let onShowDocument: () -> Void
     @Binding var visibleLayers: Set<String>
 
-    #if os(iOS)
+    #if os(iOS) || os(visionOS)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     #endif
 
@@ -93,7 +93,7 @@ struct LayerSidebar: View {
     // vertical bar on iPhone Duo). macOS keeps them in the sidebar's section
     // of the window toolbar, where automatic placement already puts them.
     private var layerActionPlacement: ToolbarItemPlacement {
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         .topBarTrailing
         #else
         .automatic
@@ -104,7 +104,7 @@ struct LayerSidebar: View {
     // document name as its title. On iPad/macOS it sits beside the drawing and
     // stays labelled "Layers".
     private var navigationTitleText: String {
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         if horizontalSizeClass == .compact {
             return documentName
         }

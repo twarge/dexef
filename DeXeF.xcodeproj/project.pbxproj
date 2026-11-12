@@ -51,7 +51,7 @@
 		210000000000000000000207 /* Fonts/NationalPark/NationalPark-wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A2 /* Fonts/NationalPark/NationalPark-wght.ttf */; };
 		210000000000000000000208 /* Fonts/NationalPark/OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1000000000000000000000A3 /* Fonts/NationalPark/OFL.txt */; };
 		210000000000000000000209 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 300000000000000000000001 /* LICENSE */; };
-		310000000000000000000001 /* DeXeFThumbnailiOS.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3100000000000000000000E2 /* DeXeFThumbnailiOS.appex */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		310000000000000000000001 /* DeXeFThumbnailiOS.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3100000000000000000000E2 /* DeXeFThumbnailiOS.appex */; platformFilters = (ios, xros, ); settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		310000000000000000000201 /* ThumbnailProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000005 /* ThumbnailProvider.swift */; };
 		310000000000000000000202 /* DXFPreviewDrawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000000000000000000001 /* DXFPreviewDrawing.swift */; };
 		310000000000000000000203 /* DXFModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000003 /* DXFModel.swift */; };
@@ -551,7 +551,7 @@
 		};
 		3100000000000000000000B1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilter = ios;
+			platformFilters = (ios, xros, );
 			target = 310000000000000000000040 /* DeXeFThumbnailiOS */;
 			targetProxy = 3100000000000000000000A1 /* PBXContainerItemProxy */;
 		};
@@ -577,6 +577,8 @@
 				INFOPLIST_FILE = DeXeF/Info.plist;
 				"INFOPLIST_FILE[sdk=iphoneos*]" = "DeXeF/Info-iOS.plist";
 				"INFOPLIST_FILE[sdk=iphonesimulator*]" = "DeXeF/Info-iOS.plist";
+				"INFOPLIST_FILE[sdk=xros*]" = "DeXeF/Info-iOS.plist";
+				"INFOPLIST_FILE[sdk=xrsimulator*]" = "DeXeF/Info-iOS.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = DeXeF;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -592,18 +594,29 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=xros*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=xrsimulator*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.dexef;
 				PRODUCT_NAME = DeXeF;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				"TARGETED_DEVICE_FAMILY[sdk=xros*]" = 7;
+				"TARGETED_DEVICE_FAMILY[sdk=xrsimulator*]" = 7;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Debug;
 		};
@@ -628,6 +641,8 @@
 				INFOPLIST_FILE = DeXeF/Info.plist;
 				"INFOPLIST_FILE[sdk=iphoneos*]" = "DeXeF/Info-iOS.plist";
 				"INFOPLIST_FILE[sdk=iphonesimulator*]" = "DeXeF/Info-iOS.plist";
+				"INFOPLIST_FILE[sdk=xros*]" = "DeXeF/Info-iOS.plist";
+				"INFOPLIST_FILE[sdk=xrsimulator*]" = "DeXeF/Info-iOS.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = DeXeF;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -643,18 +658,29 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=xros*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=xrsimulator*]" = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twarge.app.dexef;
 				PRODUCT_NAME = DeXeF;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				"TARGETED_DEVICE_FAMILY[sdk=xros*]" = 7;
+				"TARGETED_DEVICE_FAMILY[sdk=xrsimulator*]" = 7;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Release;
 		};
@@ -942,12 +968,15 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.twarge.app.dexef.thumbnail-ios";
 				PRODUCT_NAME = DeXeFThumbnailiOS;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SDKROOT = iphoneos;
+				SDKROOT = auto;
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				"TARGETED_DEVICE_FAMILY[sdk=xros*]" = 7;
+				"TARGETED_DEVICE_FAMILY[sdk=xrsimulator*]" = 7;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Debug;
 		};
@@ -976,12 +1005,15 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.twarge.app.dexef.thumbnail-ios";
 				PRODUCT_NAME = DeXeFThumbnailiOS;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SDKROOT = iphoneos;
+				SDKROOT = auto;
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				"TARGETED_DEVICE_FAMILY[sdk=xros*]" = 7;
+				"TARGETED_DEVICE_FAMILY[sdk=xrsimulator*]" = 7;
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Release;
 		};

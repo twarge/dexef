@@ -354,7 +354,7 @@ final class Coordinator: NSObject {
         renderer?.update(scene: scene, visibleLayers: visibleLayers, viewport: viewport, renderStyle: renderStyle, selectionState: selectionState)
     }
 
-    #if os(iOS)
+    #if os(iOS) || os(visionOS)
     private weak var gestureView: MTKView?
     private var touchPanStart: SIMD2<Float>?
     private var isPinching = false
@@ -496,7 +496,7 @@ final class Coordinator: NSObject {
     #endif
 }
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
 extension Coordinator: UIGestureRecognizerDelegate {
     func gestureRecognizer(
         _ gestureRecognizer: UIGestureRecognizer,

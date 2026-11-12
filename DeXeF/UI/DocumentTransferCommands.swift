@@ -402,7 +402,7 @@ private enum DocumentSharePresenter {
 }
 #endif
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
 /// The most recently active viewer's document and export hook, read by menu
 /// commands at invocation time. Updated whenever a viewer appears, changes
 /// document, or its scene becomes active, so on iPad the last-focused window

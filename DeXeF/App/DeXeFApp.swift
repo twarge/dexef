@@ -6,7 +6,7 @@ import UniformTypeIdentifiers
 #if os(macOS)
 import AppKit
 #endif
-#if os(iOS)
+#if os(iOS) || os(visionOS)
 import UIKit
 #endif
 
@@ -17,7 +17,7 @@ struct DeXeFApp: App {
     var body: some Scene {
         documentScene
 
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         if #available(iOS 18.0, *) {
             DocumentGroupLaunchScene("DeXeF") {
                 DemoDocumentLaunchButton()
@@ -34,7 +34,7 @@ struct DeXeFApp: App {
     }
 
     private var documentScene: some Scene {
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         DocumentGroup(newDocument: DemoDocument.defaultDocument()) { file in
             ViewerView(document: file.document)
                 .preferredColorScheme(AppTheme.stored(themeRawValue).colorScheme)
@@ -164,7 +164,7 @@ private enum AboutPanel {
 }
 #endif
 
-#if os(iOS)
+#if os(iOS) || os(visionOS)
 // ⌘N opens a fresh window (scene) showing the document browser. This replaces
 // the system's New Document shortcut; creating documents stays available from
 // the browser's "+". Requires UIApplicationSupportsMultipleScenes (declared in
@@ -221,7 +221,7 @@ private enum DemoDocument {
     /// Supplies the value serialized by the plain iOS NewDocumentButton.
     /// macOS uses a viewing-only DocumentGroup and never calls this factory.
     static func defaultDocument() -> DXFDocument {
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         do {
             let document = try document()
             NSLog("DeXeF: prepared %d-byte demo document", document.sourceText.utf8.count)

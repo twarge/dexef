@@ -13,7 +13,7 @@ struct ViewerView: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.scenePhase) private var scenePhase
-    #if os(iOS)
+    #if os(iOS) || os(visionOS)
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     #endif
     @AppStorage(PreferenceKeys.lineThickness) private var lineThickness = DXFRenderStyle.defaultLineThickness
@@ -43,7 +43,7 @@ struct ViewerView: View {
     // visibility toggle so the canvas is never structurally rebuilt.
     @State private var macChromeAutoHidden = false
     #endif
-    #if os(iOS)
+    #if os(iOS) || os(visionOS)
     // Distraction-free chrome is pointer-gated: bars only hide once a pointer
     // has been seen, so touch-only use is unaffected.
     @State private var hasSeenDistractionFreePointer = false
@@ -386,7 +386,7 @@ struct ViewerView: View {
     // commands read, since focused scene values don't reach commands without
     // an on-screen focus owner there.
     private func publishActiveDocument() {
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         ActiveViewerDocument.shared.document = document
         ActiveViewerDocument.shared.exportAction = { format in requestExport(format) }
         #endif
@@ -475,7 +475,7 @@ struct ViewerView: View {
     // screen: always on iPhone, where it's its own screen, and on iPad/macOS
     // while the sidebar column is open.
     private var showsLayerActions: Bool {
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         if horizontalSizeClass == .compact {
             return true
         }
@@ -519,7 +519,7 @@ struct ViewerView: View {
     }
     #endif
 
-    #if os(iOS)
+    #if os(iOS) || os(visionOS)
     private static let distractionFreeRevealHeight: CGFloat = 112
     private static let distractionFreeHideHeight: CGFloat = 152
     private static let distractionFreeHideDelay: UInt64 = 220_000_000
@@ -617,7 +617,7 @@ struct ViewerView: View {
     // graphical view shows no title. On iPad/macOS the two columns are visible
     // together and the detail keeps the document name.
     private var detailNavigationTitle: String {
-        #if os(iOS)
+        #if os(iOS) || os(visionOS)
         if horizontalSizeClass == .compact {
             return ""
         }
