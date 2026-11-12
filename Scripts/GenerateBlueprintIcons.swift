@@ -6,8 +6,7 @@
 //
 //     swift Scripts/GenerateBlueprintIcons.swift
 //
-// The app icon is not drawn here: it is an Icon Composer bundle, written by
-// Scripts/GenerateAppIcon.swift.
+// The app icon is not drawn here: Scripts/GenerateAppIcon.swift writes it.
 
 import AppKit
 import CoreGraphics
