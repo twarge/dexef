@@ -22,8 +22,8 @@
     {
       "layers" : [
         {
-          "image-name" : "Cone.svg",
-          "name" : "Cone"
+          "image-name" : "Outline.svg",
+          "name" : "Outline"
         }
       ],
       "shadow" : {
@@ -38,8 +38,8 @@
     {
       "layers" : [
         {
-          "image-name" : "Mark.svg",
-          "name" : "Mark"
+          "image-name" : "Surface.svg",
+          "name" : "Surface"
         }
       ],
       "shadow" : {
