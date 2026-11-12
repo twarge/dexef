@@ -91,7 +91,17 @@ enum BlueprintIconGenerator {
         drawBlueprintBackground(in: pageRect, context: context, colorA: color(0xF2F8FC), colorB: color(0xD7EAF8))
         drawGrid(in: pageRect, context: context, spacing: rect.width / 10.0, alpha: 0.22, dark: true)
         drawGrid(in: pageRect, context: context, spacing: rect.width / 40.0, alpha: 0.10, dark: true)
-        drawCone(in: pageRect.insetBy(dx: pageRect.width * 0.13, dy: pageRect.height * 0.18), context: context, lineScale: rect.width, darkInk: true)
+
+        // The cone keeps the app icon's coordinates, a 1024-unit square with y
+        // downward, and goes in the middle of the page.
+        let unit = rect.width / 1024 * coneScale
+        context.saveGState()
+        context.translateBy(x: rect.midX, y: rect.midY)
+        context.scaleBy(x: unit, y: -unit)
+        context.translateBy(x: -512, y: -512)
+        drawCone(context: context, unit: unit)
+        context.restoreGState()
+
         context.restoreGState()
 
         drawFold(in: pageRect, context: context)
@@ -142,63 +152,188 @@ enum BlueprintIconGenerator {
         context.restoreGState()
     }
 
-    private static func drawCone(in rect: CGRect, context: CGContext, lineScale: CGFloat, darkInk: Bool = false) {
-        let ink = darkInk ? color(0x12395B) : color(0xF4FBFF)
-        let secondary = darkInk ? color(0x2A89A4, alpha: 0.68) : color(0x6FE7FF, alpha: 0.78)
-        let construction = darkInk ? color(0x3B6F8E, alpha: 0.36) : color(0xB7E6FF, alpha: 0.32)
-        let width = max(1.25, lineScale * 0.026)
-        let thin = max(0.75, lineScale * 0.009)
+    // The cone is the app icon's, which Scripts/GenerateAppIcon.swift draws
+    // from the same numbers, in dark ink for the pale page: change the two
+    // together. The numbers are in that icon's coordinates.
+    private static let axisX: CGFloat = 512
+    private static let apexY: CGFloat = 224
+    private static let baseY: CGFloat = 704
+    private static let baseRadiusX: CGFloat = 288
+    private static let baseRadiusY: CGFloat = 96
+    private static let standOff: CGFloat = 64
 
-        let apex = CGPoint(x: rect.midX, y: rect.maxY - rect.height * 0.09)
-        let leftBase = CGPoint(x: rect.minX + rect.width * 0.11, y: rect.minY + rect.height * 0.22)
-        let rightBase = CGPoint(x: rect.maxX - rect.width * 0.11, y: leftBase.y)
-        let baseRect = CGRect(
-            x: leftBase.x,
-            y: leftBase.y - rect.height * 0.115,
-            width: rightBase.x - leftBase.x,
-            height: rect.height * 0.23
-        )
+    /// The cone's size on the page, as a share of its size in the app icon.
+    private static let coneScale: CGFloat = 0.85
+
+    /// Draws the cone, with its centre lines and dimension lines, in the app
+    /// icon's coordinates. `unit` is the size of one of those units in pixels,
+    /// which keeps the lines from thinning away in the smallest images.
+    private static func drawCone(context: CGContext, unit: CGFloat) {
+        let ink = color(0x12395B)
+        let rim = color(0x2A89A4)
+        let construction = color(0x3B6F8E, alpha: 0.36)
+        let edgeWidth = max(34, 1.25 / unit)
+        let farRimWidth = max(22, 1.0 / unit)
+        let thin = max(11, 0.75 / unit)
+
+        // The cone is seen from a little above, so its sides do not run to
+        // the ends of the base: they touch the ellipse slightly higher up and
+        // further in.
+        let height = baseY - apexY
+        let tangentY = baseY - baseRadiusY * baseRadiusY / height
+        let tangentReach = baseRadiusX * (1 - (baseRadiusY / height) * (baseRadiusY / height)).squareRoot()
+        let apex = CGPoint(x: axisX, y: apexY)
+        let leftTangent = CGPoint(x: axisX - tangentReach, y: tangentY)
+        let rightTangent = CGPoint(x: axisX + tangentReach, y: tangentY)
+
+        // Angles are round the cone's axis, from straight ahead. The surface
+        // in view, and the near rim under it, run a little past a quarter
+        // turn either way.
+        let reach = CGFloat.pi / 2 + asin(baseRadiusY / height)
+        func rimPoint(_ angle: CGFloat) -> CGPoint {
+            CGPoint(x: axisX + baseRadiusX * sin(angle), y: baseY + baseRadiusY * cos(angle))
+        }
+        func addRim(to path: CGMutablePath, from start: CGFloat, to end: CGFloat, continuing: Bool = false) {
+            let steps = 96
+            for index in 0...steps {
+                let point = rimPoint(start + (end - start) * CGFloat(index) / CGFloat(steps))
+                if index == 0 && !continuing {
+                    path.move(to: point)
+                } else {
+                    path.addLine(to: point)
+                }
+            }
+        }
 
         context.saveGState()
-        context.setLineCap(.round)
         context.setLineJoin(.round)
 
+        // The centre lines, dashed outward from the middle of the base so
+        // that they cross on a dash, and the width and height. They are one
+        // path, so that nothing doubles up where they meet.
+        let centre = CGPoint(x: axisX, y: baseY)
+        let left = axisX - baseRadiusX
+        let right = axisX + baseRadiusX
+        let dimensionX = right + standOff
+        let dimensionY = baseY + baseRadiusY + standOff
+        let lines = CGMutablePath()
+        addDashes(to: lines, from: centre, to: CGPoint(x: axisX, y: apexY - standOff))
+        addDashes(to: lines, from: centre, to: CGPoint(x: axisX, y: dimensionY))
+        addDashes(to: lines, from: centre, to: CGPoint(x: left - standOff, y: baseY))
+        addDashes(to: lines, from: centre, to: CGPoint(x: dimensionX, y: baseY))
+        addDimensionLine(to: lines, from: CGPoint(x: left, y: dimensionY), to: CGPoint(x: right, y: dimensionY), tick: 44)
+        addDimensionLine(to: lines, from: CGPoint(x: dimensionX, y: baseY), to: CGPoint(x: dimensionX, y: apexY), tick: 38)
+        context.setLineCap(.round)
         context.setStrokeColor(construction)
         context.setLineWidth(thin)
-        drawDashedLine(from: CGPoint(x: apex.x, y: rect.minY + rect.height * 0.06), to: CGPoint(x: apex.x, y: rect.maxY), context: context, dash: lineScale * 0.018)
-        drawDashedLine(from: CGPoint(x: rect.minX, y: baseRect.midY), to: CGPoint(x: rect.maxX, y: baseRect.midY), context: context, dash: lineScale * 0.018)
-
-        context.setStrokeColor(secondary)
-        context.setLineWidth(max(1.0, lineScale * 0.012))
-        drawEllipseArc(in: baseRect, start: 0, end: .pi, context: context)
+        context.addPath(lines)
         context.strokePath()
 
-        context.setStrokeColor(construction)
-        drawEllipseArc(in: baseRect, start: .pi, end: .pi * 2, context: context)
-        context.replacePathWithStrokedPath()
-        context.setAlpha(darkInk ? 0.55 : 0.42)
-        context.fillPath()
-        context.setAlpha(1)
+        // The far rim of the base, which shows through the cone.
+        let farRim = CGMutablePath()
+        addRim(to: farRim, from: reach, to: 2 * .pi - reach)
+        context.setStrokeColor(rim)
+        context.setLineWidth(farRimWidth)
+        context.addPath(farRim)
+        context.strokePath()
 
+        // The surface, see-through, shaded round the cone from a light at the
+        // front left: a fan of slivers from the apex, each one flat colour and
+        // running under the next. In the small images the slivers are thinner
+        // than a pixel and no longer cover the surface between them, so the
+        // whole surface is first filled with a plain left-to-right gradient of
+        // the same colours.
+        let lightAngle = -40 * CGFloat.pi / 180
+        func shade(_ angle: CGFloat) -> CGColor {
+            let facing = (cos(angle - lightAngle) + 1) / 2
+            let level = facing * facing
+            return level < 0.5
+                ? mix(surfaceDeep, surfaceMid, level * 2)
+                : mix(surfaceMid, surfaceLight, level * 2 - 1)
+        }
+
+        let surface = CGMutablePath()
+        surface.move(to: leftTangent)
+        surface.addLine(to: apex)
+        surface.addLine(to: rightTangent)
+        addRim(to: surface, from: reach, to: -reach, continuing: true)
+        surface.closeSubpath()
+
+        context.saveGState()
+        context.setAlpha(surfaceOpacity)
+        context.beginTransparencyLayer(auxiliaryInfo: nil)
+
+        let stopCount = 12
+        let stops = (0...stopCount).map { CGFloat($0) / CGFloat(stopCount) }
+        if let gradient = CGGradient(
+            colorsSpace: CGColorSpaceCreateDeviceRGB(),
+            colors: stops.map { shade(asin($0 * 2 - 1)) } as CFArray,
+            locations: stops
+        ) {
+            context.saveGState()
+            context.addPath(surface)
+            context.clip()
+            context.drawLinearGradient(gradient, start: CGPoint(x: left, y: 0), end: CGPoint(x: right, y: 0), options: [])
+            context.restoreGState()
+        }
+
+        let sliverCount = 160
+        let step = 2 * reach / CGFloat(sliverCount)
+        for index in 0..<sliverCount {
+            let from = -reach + CGFloat(index) * step
+            let to = index == sliverCount - 1 ? reach : from + step * 1.4
+            context.beginPath()
+            context.move(to: apex)
+            context.addLine(to: rimPoint(from))
+            context.addLine(to: rimPoint(to))
+            context.closePath()
+            context.setFillColor(shade(from + step / 2))
+            context.fillPath()
+        }
+
+        context.endTransparencyLayer()
+        context.restoreGState()
+
+        // The outline: the two sides and the near rim. They meet end to end
+        // where the sides touch the base, so the sides run a touch past that
+        // point and the rim is drawn over them.
+        let overlap: CGFloat = 3
+        let sideLength = hypot(tangentReach, tangentY - apexY)
+        let dx = tangentReach / sideLength * overlap
+        let dy = (tangentY - apexY) / sideLength * overlap
+        context.setLineCap(.butt)
+        context.setLineWidth(edgeWidth)
         context.setStrokeColor(ink)
-        context.setLineWidth(width)
         context.beginPath()
-        context.move(to: leftBase)
+        context.move(to: CGPoint(x: leftTangent.x - dx, y: tangentY + dy))
         context.addLine(to: apex)
-        context.addLine(to: rightBase)
+        context.addLine(to: CGPoint(x: rightTangent.x + dx, y: tangentY + dy))
         context.strokePath()
 
-        context.setStrokeColor(secondary)
-        context.setLineWidth(width * 0.72)
-        drawEllipseArc(in: baseRect, start: 0, end: .pi, context: context)
+        let nearRim = CGMutablePath()
+        addRim(to: nearRim, from: -reach, to: reach)
+        context.setStrokeColor(rim)
+        context.addPath(nearRim)
         context.strokePath()
-
-        context.setStrokeColor(construction)
-        context.setLineWidth(thin)
-        drawDimensionLine(from: CGPoint(x: leftBase.x, y: rect.minY + rect.height * 0.05), to: CGPoint(x: rightBase.x, y: rect.minY + rect.height * 0.05), tick: lineScale * 0.035, context: context)
-        drawDimensionLine(from: CGPoint(x: rect.maxX - rect.width * 0.02, y: baseRect.midY), to: CGPoint(x: rect.maxX - rect.width * 0.02, y: apex.y), tick: lineScale * 0.03, context: context)
 
         context.restoreGState()
+    }
+
+    // The cone's surface where it faces the light, where it turns away, and
+    // on its far side.
+    private static let surfaceLight = color(0xFFFFFF)
+    private static let surfaceMid = color(0x7FC6E6)
+    private static let surfaceDeep = color(0x2B78AE)
+    private static let surfaceOpacity: CGFloat = 0.6
+
+    private static func mix(_ a: CGColor, _ b: CGColor, _ part: CGFloat) -> CGColor {
+        guard let from = a.components, let to = b.components, from.count == 4, to.count == 4 else { return a }
+        return CGColor(
+            red: from[0] + (to[0] - from[0]) * part,
+            green: from[1] + (to[1] - from[1]) * part,
+            blue: from[2] + (to[2] - from[2]) * part,
+            alpha: from[3] + (to[3] - from[3]) * part
+        )
     }
 
     private static func drawFold(in rect: CGRect, context: CGContext) {
@@ -219,49 +354,31 @@ enum BlueprintIconGenerator {
         context.strokePath()
     }
 
-    private static func drawDashedLine(from start: CGPoint, to end: CGPoint, context: CGContext, dash: CGFloat) {
-        context.saveGState()
-        context.setLineDash(phase: 0, lengths: [dash, dash * 0.9])
-        context.beginPath()
-        context.move(to: start)
-        context.addLine(to: end)
-        context.strokePath()
-        context.restoreGState()
-    }
-
-    private static func drawDimensionLine(from start: CGPoint, to end: CGPoint, tick: CGFloat, context: CGContext) {
-        context.beginPath()
-        context.move(to: start)
-        context.addLine(to: end)
-        if abs(start.y - end.y) < 0.001 {
-            context.move(to: CGPoint(x: start.x, y: start.y - tick))
-            context.addLine(to: CGPoint(x: start.x, y: start.y + tick))
-            context.move(to: CGPoint(x: end.x, y: end.y - tick))
-            context.addLine(to: CGPoint(x: end.x, y: end.y + tick))
-        } else {
-            context.move(to: CGPoint(x: start.x - tick, y: start.y))
-            context.addLine(to: CGPoint(x: start.x + tick, y: start.y))
-            context.move(to: CGPoint(x: end.x - tick, y: end.y))
-            context.addLine(to: CGPoint(x: end.x + tick, y: end.y))
+    /// Adds a dashed line as separate segments, spaced so that both ends
+    /// finish on a full dash.
+    private static func addDashes(to path: CGMutablePath, from start: CGPoint, to end: CGPoint, dash: CGFloat = 22, gap: CGFloat = 21) {
+        let length = hypot(end.x - start.x, end.y - start.y)
+        let count = max(1, Int(((length + gap) / (dash + gap)).rounded()))
+        let pitch = (length - dash) / CGFloat(max(1, count - 1))
+        let ux = (end.x - start.x) / length
+        let uy = (end.y - start.y) / length
+        for index in 0..<count {
+            let from = CGFloat(index) * pitch
+            path.move(to: CGPoint(x: start.x + ux * from, y: start.y + uy * from))
+            path.addLine(to: CGPoint(x: start.x + ux * (from + dash), y: start.y + uy * (from + dash)))
         }
-        context.strokePath()
     }
 
-    private static func drawEllipseArc(in rect: CGRect, start: CGFloat, end: CGFloat, context: CGContext) {
-        let steps = 42
-        context.beginPath()
-        for index in 0...steps {
-            let t = CGFloat(index) / CGFloat(steps)
-            let angle = start + (end - start) * t
-            let point = CGPoint(
-                x: rect.midX + cos(angle) * rect.width * 0.5,
-                y: rect.midY + sin(angle) * rect.height * 0.5
-            )
-            if index == 0 {
-                context.move(to: point)
-            } else {
-                context.addLine(to: point)
-            }
+    /// Adds a dimension line with a tick across each end.
+    private static func addDimensionLine(to path: CGMutablePath, from start: CGPoint, to end: CGPoint, tick: CGFloat) {
+        let horizontal = abs(start.y - end.y) < 0.001
+        let dx: CGFloat = horizontal ? 0 : tick
+        let dy: CGFloat = horizontal ? tick : 0
+        path.move(to: start)
+        path.addLine(to: end)
+        for point in [start, end] {
+            path.move(to: CGPoint(x: point.x - dx, y: point.y - dy))
+            path.addLine(to: CGPoint(x: point.x + dx, y: point.y + dy))
         }
     }
 
